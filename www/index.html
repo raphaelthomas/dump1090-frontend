@@ -46,6 +46,20 @@
             var MAX_ALTITUDE = 40000;
             var MIN_OPACITY = 0.25;
 
+            function setMapSize() {
+                $('#map').css({
+                    position: 'absolute',
+                    width: $(window).width(),
+                    height: $(window).height()
+                });
+            }
+
+            $(window).resize(function() {
+                setMapSize();
+            });
+
+            setMapSize();
+
             var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
             layer.setOpacity(0.25);
             var map = new ga.Map({
@@ -318,20 +332,6 @@
                     });
                 });
             }
-
-            function setMapSize() {
-                $('#map').css({
-                    position: 'absolute',
-                    width: $(window).width(),
-                    height: $(window).height()
-                });
-            }
-
-            $(window).resize(function() {
-                setMapSize();
-            });
-
-            setMapSize();
 
             $('#planeInfoPopup').hide();
 
