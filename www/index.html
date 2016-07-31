@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <style>
-            . {
+            * {
                 margin: 0;
                 padding: 0;
             }
@@ -318,6 +318,20 @@
                     });
                 });
             }
+
+            function setMapSize() {
+                $('#map').css({
+                    position: 'absolute',
+                    width: $(window).width(),
+                    height: $(window).height()
+                });
+            }
+
+            $(window).resize(function() {
+                setMapSize();
+            });
+
+            setMapSize();
 
             $('#planeInfoPopup').hide();
 
