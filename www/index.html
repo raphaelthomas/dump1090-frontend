@@ -35,7 +35,7 @@
         <title>Switzerland ADS-B Dashboard</title>
     </head>
     <body>
-        <script src="/js/jquery-3.1.0.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="http://api3.geo.admin.ch/loader.js?lang=en" type="text/javascript"></script>
         <div id="planeInfoPopup"></div>
         <div id="map" class="map"></div>
@@ -46,8 +46,6 @@
             var MAX_ALTITUDE = 40000;
             var MIN_OPACITY = 0.25;
 
-            var control = new ol.control.FullScreen();
-
             var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
             layer.setOpacity(0.25);
             var map = new ga.Map({
@@ -55,7 +53,6 @@
                     mouseWheelZoom: false,
                     // dragPan: false
                 }),
-                //controls: [control],
                 tooltip: false,
                 target: 'map',
                 layers: [layer],
@@ -64,7 +61,8 @@
                     center: [690000, 230000]
                 })
             });
-            map.addControl(control);
+
+            map.addControl(new ol.control.FullScreen());
 
             function getTrackStyle(altitude) {
                 if (altitude < MIN_ALTITUDE) {
