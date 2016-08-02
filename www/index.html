@@ -40,7 +40,7 @@
         <div id="planeInfoPopup"></div>
         <div id="map" class="map"></div>
         <script type="text/javascript">
-            var UPDATE_INTERVAL_MS = 1000;
+            var UPDATE_INTERVAL_MS = 500;
             var MAX_SEEN = 60;
             var MIN_ALTITUDE = 0;
             var MAX_ALTITUDE = 40000;
@@ -88,10 +88,36 @@
 
                 var n = altitude*240/(MAX_ALTITUDE-MIN_ALTITUDE);
 
+                var trackColor = 'hsl('+n+',100%,50%)';
                 return new ol.style.Style({
                     stroke: new ol.style.Stroke({
-                        color: 'hsl('+n+',100%,50%)',
+                        color: trackColor,
                         width: 2
+                    })
+                });
+            }
+
+            function getTrackPointStyle(altitude) {
+                if (altitude < MIN_ALTITUDE) {
+                    altitude = MIN_ALTITUDE;
+                }
+                else if (altitude > MAX_ALTITUDE) {
+                    altitude = MAX_ALTITUDE;
+                }
+
+                var n = altitude*240/(MAX_ALTITUDE-MIN_ALTITUDE);
+
+                var trackColor = 'hsl('+n+',100%,50%)';
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 1,
+                        fill: new ol.style.Fill({
+                            color: trackColor
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: trackColor,
+                            width: 0
+                        })
                     })
                 });
             }
@@ -163,7 +189,7 @@
                 var strokeColor = [r, g, b, opacity];
                 var textColor = [r, g, b, opacity];
 
-                // speed unit : meters per 10 seconds
+                // speed vector unit is meters per 10 seconds, i.e. where the plane is in 10 seconds
                 var speed = plane.get('speed')*0.514444*10;
                 var track = plane.get('track');
                 var pointFrom = plane.getGeometry().getCoordinates();
@@ -289,6 +315,14 @@
 
                                 track.setStyle(getTrackStyle(this.altitude));
                                 planeTrackLayer.getSource().addFeature(track);
+
+                                var trackPoint = new ol.Feature({
+                                    geometry: new ol.geom.Point(coordinates),
+                                    name: this.hex
+                                });
+
+                                trackPoint.setStyle(getTrackPointStyle(this.altitude));
+                                // planeTrackLayer.getSource().addFeature(trackPoint);
                             }
                         }
                         else {
