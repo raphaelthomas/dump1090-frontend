@@ -339,7 +339,12 @@
 
                         plane.set('dirty', false);
                         plane.set('hex', this.hex);
-                        plane.set('squawk', this.squawk);
+                        if (this.squawk == '0000') {
+                            plane.set('squawk', '----');
+                        }
+                        else {
+                            plane.set('squawk', this.squawk);
+                        }
                         plane.set('messages', this.messages);
                         plane.set('seen', this.seen);
                         plane.set('altitude', this.altitude);
