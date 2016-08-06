@@ -2,22 +2,59 @@
     margin: 0;
     padding: 0;
 }
-.map {
-    /* height: 100%; */
+
+div#map {
+    float: left;
+}
+
+div#map:-webkit-full-screen {
+    height: 100%;
+}
+
+div#map:-moz-full-screen {
+    height: 100%;
+}
+
+div#map:-ms-fullscreen {
+    height: 100%;
+}
+
+div#map:fullscreen {
+    height: 100%;
+}
+
+div#container {
     width: 100%;
-}
-.map:-webkit-full-screen {
     height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: overlay;
 }
-.map:-moz-full-screen {
+
+div#sidebar {
+    float: right;
     height: 100%;
+    width: 300px;
 }
-.map:-ms-fullscreen {
-    height: 100%;
+
+div.stripe {
+    border: 1px solid #888888;
+    border-radius: 5px;
+    font-family: Menlo,Courier,monospace;
+    font-size: 15px;
+    margin: 5px;
+    padding: 5px;
 }
-.map:fullscreen {
-    height: 100%;
+
+div.callsign {
+    font-weight: bold;
 }
-div#header {
-    height: 100px;
+
+div.altitude {
+
+}
+
+div.speed {
+
 }

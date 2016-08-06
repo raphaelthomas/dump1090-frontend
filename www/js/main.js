@@ -7,8 +7,8 @@ var MIN_OPACITY = 0.25;
 function setMapSize() {
     $('#map').css({
         position: 'absolute',
-        width: $(window).width(),
-        height: ($(window).height()-100)
+        width: ($(window).width()-$('div#sidebar').outerWidth()),
+        height: $(window).height()
     });
 }
 
@@ -18,12 +18,14 @@ $(window).resize(function() {
 
 setMapSize();
 
+
 var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
+
 layer.setOpacity(0.25);
+
 var map = new ga.Map({
     interactions: ol.interaction.defaults({
         mouseWheelZoom: false,
-        // dragPan: false
     }),
     tooltip: false,
     target: 'map',
@@ -34,7 +36,6 @@ var map = new ga.Map({
     })
 });
 
-// map.addControl(new ol.control.FullScreen());
 
 function getTrackStyle(altitude) {
     if (altitude < MIN_ALTITUDE) {
@@ -51,31 +52,6 @@ function getTrackStyle(altitude) {
         stroke: new ol.style.Stroke({
             color: trackColor,
             width: 2
-        })
-    });
-}
-
-function getTrackPointStyle(altitude) {
-    if (altitude < MIN_ALTITUDE) {
-        altitude = MIN_ALTITUDE;
-    }
-    else if (altitude > MAX_ALTITUDE) {
-        altitude = MAX_ALTITUDE;
-    }
-
-    var n = altitude*240/(MAX_ALTITUDE-MIN_ALTITUDE);
-
-    var trackColor = 'hsl('+n+',100%,50%)';
-    return new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 1,
-            fill: new ol.style.Fill({
-                color: trackColor
-            }),
-            stroke: new ol.style.Stroke({
-                color: trackColor,
-                width: 0
-            })
         })
     });
 }
@@ -278,9 +254,6 @@ function fetchUpdatePlaneLayer() {
                         geometry: new ol.geom.Point(coordinates),
                         name: this.hex
                     });
-
-                    trackPoint.setStyle(getTrackPointStyle(this.altitude));
-                    // planeTrackLayer.getSource().addFeature(trackPoint);
                 }
             }
             else {
@@ -311,6 +284,8 @@ function fetchUpdatePlaneLayer() {
             plane.set('track', this.track);
             plane.set('flight', this.flight);
 
+            updateStripe(plane);
+
             plane.setStyle(getPlaneStyle(plane));
         });
 
@@ -325,13 +300,24 @@ function fetchUpdatePlaneLayer() {
                         planeTrackLayer.getSource().removeFeature(track);
                     }
                 });
+
+                $('div#stripe-'+hex).remove();
             }
         });
     });
 }
 
-$('#planeInfoPopup').hide();
 
+function updateStripe(plane) {
+    if ($('div#stripe-'+plane.get('hex')).length == 0) {
+        $("#sidebar").append('<div id="stripe-'+plane.get('hex')+'" class="stripe"><div class="callsign"></div></div>');
+    }
+
+    $('div#stripe-'+plane.get('hex')+' div.callsign').html(plane.get('flight')+'</div>');
+
+}
+
+/*
 map.on('click', function(e) {
     var feature = map.forEachFeatureAtPixel(e.pixel,
         function(feature, layer) {
@@ -341,16 +327,13 @@ map.on('click', function(e) {
     if (feature) {
         updateHeader(feature);
         // feature.setStyle(getPlaneStyle(feature, true));
-        $('div#header').html(feature.get('flight')).css('height', '100px').show();
     }
     else {
-        $('div#header').html('').css('height', '0').hide();
     }
 });
 
 map.on('pointermove', function(e) {
     if (e.dragging) {
-        $('#planeInfoPopup').hide();
         return;
     }
 
@@ -364,6 +347,4 @@ map.on('pointermove', function(e) {
     }
 });
 
-function updateHeader(plane) {
-
-}
+*/
