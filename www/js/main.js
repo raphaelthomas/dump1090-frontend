@@ -316,7 +316,7 @@ function updateStripe(plane) {
             '<div class="callsign"></div>'+
             '<div class="icao24"></div>'+
             '</div>'+
-            '<div class="element info">'+
+            '<div class="info">'+
             '<div class="element speed"></div>'+
             '<div class="element altitude"></div>'+
             '<div class="element track"></div>'+

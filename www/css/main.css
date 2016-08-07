@@ -36,11 +36,11 @@ div#sidebar {
     float: right;
     height: 100%;
     width: 300px;
-    background-color: #F0F0F0;
+    background-color: #eeeeee;
 }
 
 div.stripe {
-    background-color: #ffffff;
+    background-color: #fefefe;
     border-color: white;
     border-right-color: red;
     border-left-color: blue;
@@ -51,6 +51,10 @@ div.stripe {
     margin: 5px 10px;
     padding: 5px;
     overflow: auto;
+}
+
+.active {
+    background-color: #ffffff;
 }
 
 div.title {
@@ -66,6 +70,8 @@ div.info {
 div.element {
     margin: 0;
     margin-right: 5px;
+    width: 40px;
+    float: left;
 }
 
 div.callsign {
@@ -78,21 +84,16 @@ div.icao24 {
 }
 
 div.altitude {
-    float: left;
 }
 
 div.speed {
-    float: left;
 }
 
 div.track {
-    float: left;
 }
 
 div.vert_rate {
-    float: left;
 }
 
 div.squawk {
-    float: left;
 }
