@@ -19,7 +19,8 @@ $(window).resize(function() {
 setMapSize();
 
 
-var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
+// var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
+var layer = ga.layer.create('ch.swisstopo.pixelkarte-farbe-pk200.noscale');
 
 layer.setOpacity(0.25);
 
@@ -36,8 +37,9 @@ var map = new ga.Map({
     })
 });
 
+function getAltitudeColor(plane) {
+    var altitude = plane.get('altitude');
 
-function getTrackStyle(altitude) {
     if (altitude < MIN_ALTITUDE) {
         altitude = MIN_ALTITUDE;
     }
@@ -47,10 +49,13 @@ function getTrackStyle(altitude) {
 
     var n = altitude*240/(MAX_ALTITUDE-MIN_ALTITUDE);
 
-    var trackColor = 'hsl('+n+',100%,50%)';
+    return 'hsl('+n+',100%,50%)';
+}
+
+function getTrackStyle(plane) {
     return new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: trackColor,
+            color: getAltitudeColor(plane),
             width: 2
         })
     });
@@ -107,12 +112,8 @@ function getPlaneStyle(plane, highlighted = false) {
         vertIndicator = '\u2191';
     }
     var altitude = Math.round(plane.get('altitude')/100)+"";
-    if (altitude.length == 1) {
-        altitude = '00'+altitude;
-    }
-    else if (altitude.length == 2) {
-        altitude = '0'+altitude;
-    }
+    altitude = pad(altitude, 3, '0');
+
     var planeInfo = altitude+vertIndicator+Math.round(plane.get('speed')/10);
 
     if (highlighted && (r == 0)) {
@@ -247,7 +248,7 @@ function fetchUpdatePlaneLayer() {
                         name: this.hex
                     });
 
-                    track.setStyle(getTrackStyle(this.altitude));
+                    track.setStyle(getTrackStyle(plane));
                     planeTrackLayer.getSource().addFeature(track);
 
                     var trackPoint = new ol.Feature({
@@ -307,11 +308,12 @@ function fetchUpdatePlaneLayer() {
     });
 }
 
-
 function updateStripe(plane) {
-    if ($('div#stripe-'+plane.get('hex')).length == 0) {
+    var hex = plane.get('hex');
+
+    if ($('div#stripe-'+hex).length == 0) {
         $("#sidebar").append(
-            '<div id="stripe-'+plane.get('hex')+'" class="stripe">'+
+            '<div id="stripe-'+hex+'" class="stripe">'+
             '<div class="title">'+
             '<div class="callsign"></div>'+
             '<div class="icao24"></div>'+
@@ -320,55 +322,71 @@ function updateStripe(plane) {
             '<div class="element speed"></div>'+
             '<div class="element altitude"></div>'+
             '<div class="element track"></div>'+
-            '<div class="element vert_rate"></div>'+
             '<div class="element squawk"></div>'+
+            '<div class="element position"></div>'+
             '</div>'+
             '</div>'
         );
+
+        $('div#stripe-'+hex).click(function() {
+            var activeClass = 'active';
+
+            $('div.stripe').each(function() {
+                if ($(this).attr('id') != 'stripe-'+hex) {
+                    $(this).removeClass(activeClass);
+                }
+            });
+
+            $(this).toggleClass(activeClass);
+        });
     }
+
+    $('div#stripe-'+hex).attr('data-sort', plane.get('altitude'));
 
     var seen = plane.get('seen');
     var n = (seen >= MAX_SEEN) ? 0 : 120*(1-seen/MAX_SEEN);
     var seenColor = 'hsl('+n+',100%,50%)';
-    $('div#stripe-'+plane.get('hex')).css('border-right-color', seenColor);
+    $('div#stripe-'+hex).css('border-right-color', seenColor);
 
-    $('div#stripe-'+plane.get('hex')+' div.callsign').html(plane.get('flight')+'</div>');
-    $('div#stripe-'+plane.get('hex')+' div.icao24').html(plane.get('hex').toUpperCase()+'</div>');
-    $('div#stripe-'+plane.get('hex')+' div.speed').html(plane.get('speed')+'</div>');
-    $('div#stripe-'+plane.get('hex')+' div.altitude').html(plane.get('altitude')+'</div>');
-    $('div#stripe-'+plane.get('hex')+' div.track').html(plane.get('track')+'</div>');
-    $('div#stripe-'+plane.get('hex')+' div.vert_rate').html(plane.get('vert_rate')+'</div>');
-    $('div#stripe-'+plane.get('hex')+' div.squawk').html(plane.get('squawk')+'</div>');
+    var altitudeColor = getAltitudeColor(plane);
+    $('div#stripe-'+hex).css('border-left-color', altitudeColor);
+
+    var flight = plane.get('flight');
+    $('div#stripe-'+hex+' div.callsign').html(
+        // '<a href="https://flightradar24.com/'+flight+'">'+
+        flight
+        // +'</a>'
+    );
+
+    $('div#stripe-'+hex+' div.icao24')
+        .html(hex.toUpperCase());
+
+    var speed = Math.round(plane.get('speed')*1.852);
+    $('div#stripe-'+hex+' div.speed').html(pad(speed, 3, '0')+' km/h');
+
+    var altitude = Math.round(plane.get('altitude')*0.3048);
+    $('div#stripe-'+hex+' div.altitude')
+        .html(pad(altitude, 5, '0')+' m');
+
+    $('div#stripe-'+hex+' div.track')
+        .html(pad(plane.get('track'), 3, '0')+'&deg;');
+    $('div#stripe-'+hex+' div.squawk')
+        .html(plane.get('squawk'));
+
+    var coordinates = plane.getGeometry().getCoordinates();
+    $('div#stripe-'+hex+' div.position')
+        .html(parseInt(coordinates[0])+'/'+parseInt(coordinates[1]));
 }
 
-/*
-map.on('click', function(e) {
-    var feature = map.forEachFeatureAtPixel(e.pixel,
-        function(feature, layer) {
-        return feature;
-    });
+function pad(string, length, character) {
+    string += '';
+    var delta = (length - string.length);
 
-    if (feature) {
-        updateHeader(feature);
-        // feature.setStyle(getPlaneStyle(feature, true));
-    }
-    else {
-    }
-});
-
-map.on('pointermove', function(e) {
-    if (e.dragging) {
-        return;
+    if (delta > 0) {
+        for (i = 0; i < delta; i++) {
+            string = character+string;
+        }
     }
 
-    var pixel = map.getEventPixel(e.originalEvent);
-    var hit = map.hasFeatureAtPixel(pixel);
-    if (hit) {
-        $('#'+map.getTarget()).css('cursor', 'pointer');
-    }
-    else {
-        $('#'+map.getTarget()).css('cursor', '');
-    }
-});
-
-*/
+    return string;
+}

@@ -36,41 +36,49 @@ div#sidebar {
     float: right;
     height: 100%;
     width: 300px;
-    background-color: #eeeeee;
+    background-color: #e0e0e0;
+    overflow: scroll;
+    overflow-x:hidden;
 }
 
 div.stripe {
-    background-color: #fefefe;
+    background-color: #f0f0f0;
     border-color: white;
-    border-right-color: red;
-    border-left-color: blue;
     border-style: solid;
     border-width: 0px 5px;
     font-family: Menlo,Courier,monospace;
-    font-size: 12px;
-    margin: 5px 10px;
+    font-size: 10px;
+    margin: 5px 5px;
     padding: 5px;
     overflow: auto;
+    cursor: pointer;
 }
 
-.active {
+div.active {
     background-color: #ffffff;
 }
 
+div.emergency {
+    background-color: rgba(255, 0, 0, 0.25);
+}
+
 div.title {
+    font-size: 13px;
     clear: both;
     overflow: auto;
+    margin: 0;
+    margin-bottom: 5px;
 }
 
 div.info {
     clear: both;
     overflow: auto;
+    text-align: right;
 }
 
 div.element {
     margin: 0;
-    margin-right: 5px;
-    width: 40px;
+    margin-right: 10px;
     float: left;
 }
 
@@ -83,17 +91,16 @@ div.icao24 {
     float: right;
 }
 
-div.altitude {
+div.position {
+    float: right;
+    margin: 0;
 }
 
-div.speed {
+a {
+    color: #000000;
+    text-decoration: none;
 }
 
-div.track {
-}
-
-div.vert_rate {
-}
-
-div.squawk {
+a:hover {
+    text-decoration: underline;
 }
