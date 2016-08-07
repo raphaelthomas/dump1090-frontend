@@ -36,25 +36,63 @@ div#sidebar {
     float: right;
     height: 100%;
     width: 300px;
+    background-color: #F0F0F0;
 }
 
 div.stripe {
-    border: 1px solid #888888;
-    border-radius: 5px;
+    background-color: #ffffff;
+    border-color: white;
+    border-right-color: red;
+    border-left-color: blue;
+    border-style: solid;
+    border-width: 0px 5px;
     font-family: Menlo,Courier,monospace;
-    font-size: 15px;
-    margin: 5px;
+    font-size: 12px;
+    margin: 5px 10px;
     padding: 5px;
+    overflow: auto;
+}
+
+div.title {
+    clear: both;
+    overflow: auto;
+}
+
+div.info {
+    clear: both;
+    overflow: auto;
+}
+
+div.element {
+    margin: 0;
+    margin-right: 5px;
 }
 
 div.callsign {
     font-weight: bold;
+    float: left;
+}
+
+div.icao24 {
+    float: right;
 }
 
 div.altitude {
-
+    float: left;
 }
 
 div.speed {
+    float: left;
+}
 
+div.track {
+    float: left;
+}
+
+div.vert_rate {
+    float: left;
+}
+
+div.squawk {
+    float: left;
 }

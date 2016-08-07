@@ -310,11 +310,35 @@ function fetchUpdatePlaneLayer() {
 
 function updateStripe(plane) {
     if ($('div#stripe-'+plane.get('hex')).length == 0) {
-        $("#sidebar").append('<div id="stripe-'+plane.get('hex')+'" class="stripe"><div class="callsign"></div></div>');
+        $("#sidebar").append(
+            '<div id="stripe-'+plane.get('hex')+'" class="stripe">'+
+            '<div class="title">'+
+            '<div class="callsign"></div>'+
+            '<div class="icao24"></div>'+
+            '</div>'+
+            '<div class="element info">'+
+            '<div class="element speed"></div>'+
+            '<div class="element altitude"></div>'+
+            '<div class="element track"></div>'+
+            '<div class="element vert_rate"></div>'+
+            '<div class="element squawk"></div>'+
+            '</div>'+
+            '</div>'
+        );
     }
 
-    $('div#stripe-'+plane.get('hex')+' div.callsign').html(plane.get('flight')+'</div>');
+    var seen = plane.get('seen');
+    var n = (seen >= MAX_SEEN) ? 0 : 120*(1-seen/MAX_SEEN);
+    var seenColor = 'hsl('+n+',100%,50%)';
+    $('div#stripe-'+plane.get('hex')).css('border-right-color', seenColor);
 
+    $('div#stripe-'+plane.get('hex')+' div.callsign').html(plane.get('flight')+'</div>');
+    $('div#stripe-'+plane.get('hex')+' div.icao24').html(plane.get('hex').toUpperCase()+'</div>');
+    $('div#stripe-'+plane.get('hex')+' div.speed').html(plane.get('speed')+'</div>');
+    $('div#stripe-'+plane.get('hex')+' div.altitude').html(plane.get('altitude')+'</div>');
+    $('div#stripe-'+plane.get('hex')+' div.track').html(plane.get('track')+'</div>');
+    $('div#stripe-'+plane.get('hex')+' div.vert_rate').html(plane.get('vert_rate')+'</div>');
+    $('div#stripe-'+plane.get('hex')+' div.squawk').html(plane.get('squawk')+'</div>');
 }
 
 /*
