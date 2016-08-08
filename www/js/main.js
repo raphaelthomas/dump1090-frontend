@@ -87,17 +87,17 @@ function getPlaneStyle(plane, highlighted = false) {
             break;
         case '7500':
             r = 255;
-            planeSquawk += ' HIJACKING';
+            planeSquawk += ' HI-JACK';
             font = 'bold '+font;
             break;
         case '7600':
             r = 255;
-            planeSquawk += ' RADIO FAILURE';
+            planeSquawk += ' COMFAIL';
             font = 'bold '+font;
             break;
         case '7700':
             r = 255;
-            planeSquawk += ' EMERGENCY';
+            planeSquawk += ' EMERG';
             font = 'bold '+font;
             break;
     }
