@@ -111,7 +111,7 @@ function getPlaneStyle(plane, highlighted = false) {
         vertIndicator = '\u2191';
     }
     var altitude = Math.round(plane.get('altitude')/100)+"";
-    altitude = pad(altitude, 3, '0');
+    altitude = pad(altitude, 3, ' ');
 
     var planeInfo = altitude+vertIndicator+Math.round(plane.get('speed')/10);
 
@@ -356,13 +356,13 @@ function updateStripe(plane) {
     $('div#stripe-'+hex+' div.icao24').html(hex.toUpperCase());
 
     var speed = Math.round(plane.get('speed')*1.852);
-    $('div#stripe-'+hex+' div.speed').html(pad(speed, 3, '0')+' km/h');
+    $('div#stripe-'+hex+' div.speed').html(pad(speed, 3, ' ')+' km/h');
 
     var altitude = Math.round(plane.get('altitude')*0.3048);
     $('div#stripe-'+hex+' div.altitude')
-        .html(pad(altitude, 5, '0')+' m');
+        .html(pad(altitude, 5, ' ')+' m');
 
-    $('div#stripe-'+hex+' div.track').html(pad(plane.get('track'), 3, '0')+'&deg;');
+    $('div#stripe-'+hex+' div.track').html(pad(plane.get('track'), 3, ' ')+'&deg;');
     $('div#stripe-'+hex+' div.squawk').html(plane.get('squawk'));
 
     var coordinates = plane.getGeometry().getCoordinates();
@@ -373,6 +373,10 @@ function updateStripe(plane) {
 function pad(string, length, character) {
     string += '';
     var delta = (length - string.length);
+
+    if (character == ' ') {
+        character = '&nbsp;';
+    }
 
     if (delta > 0) {
         for (i = 0; i < delta; i++) {
