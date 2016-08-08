@@ -4,6 +4,9 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
+var MAP_CENTER_COORDINATES = [690000, 230000];
+var MAP_RESOLUTION = 100;
+
 function setMapSize() {
     $('#map').css({
         position: 'absolute',
@@ -31,8 +34,8 @@ var map = new ga.Map({
     target: 'map',
     layers: [layer],
     view: new ol.View({
-        resolution: 100,
-        center: [690000, 230000]
+        resolution: MAP_RESOLUTION,
+        center: MAP_CENTER_COORDINATES
     })
 });
 
@@ -336,7 +339,14 @@ function updateStripe(plane) {
                 }
             });
 
-            $(this).toggleClass(activeClass);
+            if ($(this).hasClass(activeClass)) {
+                $(this).removeClass(activeClass);
+                panToLocation();
+            }
+            else {
+                $(this).addClass(activeClass);
+                panToLocation(plane.getGeometry().getCoordinates(), MAP_RESOLUTION/2);
+            }
         });
     }
 
@@ -382,4 +392,19 @@ function pad(string, length, character='&nbsp;') {
     }
 
     return string;
+}
+
+function panToLocation(coordinates=MAP_CENTER_COORDINATES, resolution=MAP_RESOLUTION) {
+    var pan = ol.animation.pan({
+        source: map.getView().getCenter()
+    });
+    map.beforeRender(pan);
+
+    var zoom = ol.animation.zoom({
+        resolution: map.getView().getResolution()
+    });
+    map.beforeRender(zoom);
+
+    map.getView().setCenter(coordinates);
+    map.getView().setResolution(resolution);
 }
