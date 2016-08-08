@@ -360,7 +360,7 @@ function updateStripe(plane) {
 
     var altitude = Math.round(plane.get('altitude')*0.3048);
     var vertRate = plane.get('vert_rate');
-    var vertIndicator = (vertRate > 0) ? '\u2191' : ((vertRate < 0) ? '\u2193' : ' ');
+    var vertIndicator = (vertRate > 0) ? '\u2191' : ((vertRate < 0) ? '\u2193' : '&nbsp;');
     $('div#stripe-'+hex+' div.altitude').html(pad(altitude, 5)+' m '+vertIndicator);
 
     $('div#stripe-'+hex+' div.track').html(pad(plane.get('track'), 3)+'&deg;');
