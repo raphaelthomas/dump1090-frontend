@@ -19,10 +19,9 @@ $(window).resize(function() {
 setMapSize();
 
 
-// var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
-var layer = ga.layer.create('ch.swisstopo.pixelkarte-farbe-pk200.noscale');
+var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
 
-layer.setOpacity(0.25);
+layer.setOpacity(0.3);
 
 var map = new ga.Map({
     interactions: ol.interaction.defaults({
@@ -352,14 +351,9 @@ function updateStripe(plane) {
     $('div#stripe-'+hex).css('border-left-color', altitudeColor);
 
     var flight = plane.get('flight');
-    $('div#stripe-'+hex+' div.callsign').html(
-        // '<a href="https://flightradar24.com/'+flight+'">'+
-        flight
-        // +'</a>'
-    );
+    $('div#stripe-'+hex+' div.callsign').html(flight);
 
-    $('div#stripe-'+hex+' div.icao24')
-        .html(hex.toUpperCase());
+    $('div#stripe-'+hex+' div.icao24').html(hex.toUpperCase());
 
     var speed = Math.round(plane.get('speed')*1.852);
     $('div#stripe-'+hex+' div.speed').html(pad(speed, 3, '0')+' km/h');
@@ -368,10 +362,8 @@ function updateStripe(plane) {
     $('div#stripe-'+hex+' div.altitude')
         .html(pad(altitude, 5, '0')+' m');
 
-    $('div#stripe-'+hex+' div.track')
-        .html(pad(plane.get('track'), 3, '0')+'&deg;');
-    $('div#stripe-'+hex+' div.squawk')
-        .html(plane.get('squawk'));
+    $('div#stripe-'+hex+' div.track').html(pad(plane.get('track'), 3, '0')+'&deg;');
+    $('div#stripe-'+hex+' div.squawk').html(plane.get('squawk'));
 
     var coordinates = plane.getGeometry().getCoordinates();
     $('div#stripe-'+hex+' div.position')
