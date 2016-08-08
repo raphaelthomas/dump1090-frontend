@@ -46,12 +46,13 @@ div.stripe {
     border-color: white;
     border-style: solid;
     border-width: 0px 5px;
-    font-family: Menlo,Courier,monospace;
+    font-family: 'Source Code Pro', monospace;
     font-size: 11px;
     margin: 5px 5px;
     padding: 5px;
     overflow: auto;
     cursor: pointer;
+    height: 40px;
 }
 
 div.active {
@@ -63,7 +64,7 @@ div.emergency {
 }
 
 div.title {
-    font-size: 13px;
+    font-size: 15px;
     clear: both;
     overflow: auto;
     margin: 0;
