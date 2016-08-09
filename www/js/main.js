@@ -10,6 +10,9 @@ var MAP_RESOLUTION = 100;
 function setSize() {
     var scrollbarWidth = $('body').outerWidth()-$('body').innerWidth();
     var sidebarWidth = $('div#sidebar').outerWidth()+scrollbarWidth;
+    $('div#sidebar').css({
+        width: sidebarWidth,
+    });
     $('#map').css({
         position: 'absolute',
         width: ($(window).width()-sidebarWidth),
