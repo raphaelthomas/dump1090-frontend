@@ -7,19 +7,21 @@ var MIN_OPACITY = 0.25;
 var MAP_CENTER_COORDINATES = [690000, 230000];
 var MAP_RESOLUTION = 100;
 
-function setMapSize() {
+function setSize() {
+    var scrollbarWidth = $('body').outerWidth()-$('body').innerWidth();
+    var sidebarWidth = $('div#sidebar').outerWidth()+scrollbarWidth;
     $('#map').css({
         position: 'absolute',
-        width: ($(window).width()-$('div#sidebar').outerWidth()),
+        width: ($(window).width()-sidebarWidth),
         height: $(window).height()
     });
 }
 
 $(window).resize(function() {
-    setMapSize();
+    setSize();
 });
 
-setMapSize();
+setSize();
 
 
 var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
