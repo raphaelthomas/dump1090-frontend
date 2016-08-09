@@ -37,8 +37,8 @@ div#sidebar {
     height: 100%;
     width: 325px;
     background-color: #e0e0e0;
-    overflow: scroll;
-    overflow-x:hidden;
+    overflow: hidden;
+    overflow-y:scroll;
 }
 
 div.stripe {
