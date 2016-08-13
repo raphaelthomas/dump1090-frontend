@@ -110,6 +110,11 @@ function getPlaneStyle(plane, highlighted = false) {
             break;
     }
 
+    var planeShort = plane.get('plane_short');
+    if (planeShort) {
+        planeSquawk = planeShort+' '+planeSquawk;
+    }
+
     var vertIndicator = ' ';
     var vertRate = plane.get('vert_rate');
     if (vertRate < 0) {
@@ -225,7 +230,7 @@ map.addLayer(planeTrackLayer);
 map.addLayer(planeLayer);
 
 function fetchUpdatePlaneLayer() {
-    $.getJSON('/data.json', function(data) {
+    $.getJSON('/data-alt.json', function(data) {
         
         planeLayer.getSource().getFeatures().forEach(function (feature, index, array) {
             feature.set('dirty', true);
@@ -291,6 +296,10 @@ function fetchUpdatePlaneLayer() {
             plane.set('speed', this.speed);
             plane.set('track', this.track);
             plane.set('flight', this.flight);
+            plane.set('owner', this.owner);
+            plane.set('immatriculation', this.immatriculation);
+            plane.set('plane_short', this.plane_short);
+            plane.set('plane', this.plane_full);
 
             updateStripe(plane);
 
@@ -324,6 +333,10 @@ function updateStripe(plane) {
             '<div class="title">'+
             '<div class="callsign"></div>'+
             '<div class="icao24"></div>'+
+            '</div>'+
+            '<div class="info">'+
+            '<div class="element airplane"></div>'+
+            '<div class="element airline"></div>'+
             '</div>'+
             '<div class="info">'+
             '<div class="element speed"></div>'+
@@ -384,6 +397,9 @@ function updateStripe(plane) {
     var coordinates = plane.getGeometry().getCoordinates();
     $('div#stripe-'+hex+' div.position')
         .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
+
+    $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
+    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
 }
 
 function pad(string, length, character='&nbsp;') {
