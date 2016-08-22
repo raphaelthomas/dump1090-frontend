@@ -7,6 +7,8 @@ var MIN_OPACITY = 0.25;
 var MAP_CENTER_COORDINATES = [690000, 230000];
 var MAP_RESOLUTION = 100;
 
+var ACTIVECLASS = 'active';
+
 function setSize() {
     var scrollbarWidth = $('body').outerWidth()-$('body').innerWidth();
     var sidebarWidth = $('div#sidebar').outerWidth()+scrollbarWidth;
@@ -318,6 +320,9 @@ function fetchUpdatePlaneLayer() {
                     }
                 });
 
+                if ($('div#stripe-'+hex).hasClass(ACTIVECLASS)) {
+                    panToLocation();
+                }
                 $('div#stripe-'+hex).remove();
             }
         });
@@ -357,20 +362,18 @@ function updateStripe(plane) {
         );
 
         $('div#stripe-'+hex).click(function() {
-            var activeClass = 'active';
-
             $('div.stripe').each(function() {
                 if ($(this).attr('id') != 'stripe-'+hex) {
-                    $(this).removeClass(activeClass);
+                    $(this).removeClass(ACTIVECLASS);
                 }
             });
 
-            if ($(this).hasClass(activeClass)) {
-                $(this).removeClass(activeClass);
+            if ($(this).hasClass(ACTIVECLASS)) {
+                $(this).removeClass(ACTIVECLASS);
                 panToLocation();
             }
             else {
-                $(this).addClass(activeClass);
+                $(this).addClass(ACTIVECLASS);
                 panToLocation(plane.getGeometry().getCoordinates(), MAP_RESOLUTION/2);
             }
         });
@@ -407,7 +410,8 @@ function updateStripe(plane) {
         .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
 
     $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
-    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
+    // FIXME only add immatriculation when plane is known
+    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane')+' ('+plane.get('immatriculation')+')');
 }
 
 function pad(string, length, character='&nbsp;') {
