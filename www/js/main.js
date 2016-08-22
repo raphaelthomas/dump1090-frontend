@@ -321,6 +321,14 @@ function fetchUpdatePlaneLayer() {
                 $('div#stripe-'+hex).remove();
             }
         });
+
+        var wrapper = $('div#stripeContainer');
+
+        wrapper.find('.stripe').sort(function(a, b) {
+                return a.dataset.altitude - b.dataset.altitude;
+        })
+        .appendTo(wrapper);
+
     });
 }
 
@@ -328,7 +336,7 @@ function updateStripe(plane) {
     var hex = plane.get('hex');
 
     if ($('div#stripe-'+hex).length == 0) {
-        $("#sidebar").append(
+        $("#stripeContainer").append(
             '<div id="stripe-'+hex+'" class="stripe">'+
             '<div class="title">'+
             '<div class="callsign"></div>'+
@@ -368,7 +376,7 @@ function updateStripe(plane) {
         });
     }
 
-    $('div#stripe-'+hex).attr('data-sort', plane.get('altitude'));
+    $('div#stripe-'+hex).attr('data-altitude', plane.get('altitude'));
 
     var seen = plane.get('seen');
     var n = (seen >= MAX_SEEN) ? 0 : 120*(1-seen/MAX_SEEN);
