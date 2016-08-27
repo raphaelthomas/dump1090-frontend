@@ -52,7 +52,7 @@ div.stripe {
     padding: 5px;
     overflow: auto;
     cursor: pointer;
-    height: 50px;
+    height: 55px;
 }
 
 div.active {
@@ -86,7 +86,12 @@ div.element {
 div.callsign {
     font-weight: bold;
     float: left;
-    width: 150px;
+    width: 100px;
+}
+
+div.immatriculation {
+    font-weight: bold;
+    float: left;
 }
 
 div.icao24 {

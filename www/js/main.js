@@ -345,6 +345,7 @@ function updateStripe(plane) {
             '<div id="stripe-'+hex+'" class="stripe">'+
             '<div class="title">'+
             '<div class="callsign"></div>'+
+            '<div class="immatriculation"></div>'+
             '<div class="icao24"></div>'+
             '</div>'+
             '<div class="info">'+
@@ -392,6 +393,9 @@ function updateStripe(plane) {
     var flight = plane.get('flight');
     $('div#stripe-'+hex+' div.callsign').html(flight);
 
+    var immatriculation = plane.get('immatriculation');
+    $('div#stripe-'+hex+' div.immatriculation').html(immatriculation);
+
     $('div#stripe-'+hex+' div.icao24').html(hex.toUpperCase());
 
     var speed = Math.round(plane.get('speed')*1.852);
@@ -410,8 +414,7 @@ function updateStripe(plane) {
         .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
 
     $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
-    // FIXME only add immatriculation when plane is known
-    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane')+' ('+plane.get('immatriculation')+')');
+    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
 }
 
 function pad(string, length, character='&nbsp;') {
