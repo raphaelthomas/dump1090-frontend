@@ -1,4 +1,4 @@
-var UPDATE_INTERVAL_MS = 250;
+var UPDATE_INTERVAL_MS = 1000;
 var MAX_SEEN = 60;
 var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
@@ -12,13 +12,17 @@ var ACTIVECLASS = 'active';
 function setSize() {
     var scrollbarWidth = $('body').outerWidth()-$('body').innerWidth();
     var sidebarWidth = $('div#sidebar').outerWidth()+scrollbarWidth;
+    var controlBoxHeight = $('div#controlBox').outerHeight();
+
     $('div#sidebar').css({
         width: sidebarWidth,
+        height: ($(window).height()-controlBoxHeight)
     });
+
     $('#map').css({
         position: 'absolute',
         width: ($(window).width()-sidebarWidth),
-        height: $(window).height()
+        height: ($(window).height()-controlBoxHeight)
     });
 }
 
@@ -27,7 +31,6 @@ $(window).resize(function() {
 });
 
 setSize();
-
 
 var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
 
@@ -237,6 +240,8 @@ function fetchUpdatePlaneLayer() {
         planeLayer.getSource().getFeatures().forEach(function (feature, index, array) {
             feature.set('dirty', true);
         });
+
+        $('div#planeCount').html(pad(data.length, 4)+' planes on map');
 
         $.each(data, function () {
             if ((this.validposition == 0) || (this.validtrack == 0) || (this.seen > MAX_SEEN)) {
