@@ -1,4 +1,4 @@
-var UPDATE_INTERVAL_MS = 250;
+var UPDATE_INTERVAL_MS = 1000;
 var MAX_SEEN = 60;
 var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
@@ -13,13 +13,17 @@ var ACTIVECLASS = 'active';
 function setSize() {
     var scrollbarWidth = $('body').outerWidth()-$('body').innerWidth();
     var sidebarWidth = $('div#sidebar').outerWidth()+scrollbarWidth;
+    var controlBoxHeight = $('div#controlBox').outerHeight();
+
     $('div#sidebar').css({
         width: sidebarWidth,
+        height: ($(window).height()-controlBoxHeight)
     });
+
     $('#map').css({
         position: 'absolute',
         width: ($(window).width()-sidebarWidth),
-        height: $(window).height()
+        height: ($(window).height()-controlBoxHeight)
     });
 }
 
@@ -28,7 +32,6 @@ $(window).resize(function() {
 });
 
 setSize();
-
 
 var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
 
@@ -239,6 +242,8 @@ function fetchUpdatePlaneLayer() {
             feature.set('dirty', true);
         });
 
+        $('div#planeCount').html(pad(data.length, 4)+' planes on map');
+
         $.each(data, function () {
             if ((this.validposition == 0) || (this.seen > MAX_SEEN)) {
                 return true;
@@ -350,6 +355,7 @@ function updateStripe(plane) {
             '<div id="stripe-'+hex+'" class="stripe">'+
             '<div class="title">'+
             '<div class="callsign"></div>'+
+            '<div class="immatriculation"></div>'+
             '<div class="icao24"></div>'+
             '</div>'+
             '<div class="info">'+
@@ -397,6 +403,9 @@ function updateStripe(plane) {
     var flight = plane.get('flight');
     $('div#stripe-'+hex+' div.callsign').html(flight);
 
+    var immatriculation = plane.get('immatriculation');
+    $('div#stripe-'+hex+' div.immatriculation').html(immatriculation);
+
     $('div#stripe-'+hex+' div.icao24').html(hex.toUpperCase());
 
     var speed = Math.round(plane.get('speed')*1.852);
@@ -415,8 +424,7 @@ function updateStripe(plane) {
         .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
 
     $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
-    // FIXME only add immatriculation when plane is known
-    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane')+' ('+plane.get('immatriculation')+')');
+    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
 }
 
 function pad(string, length, character='&nbsp;') {

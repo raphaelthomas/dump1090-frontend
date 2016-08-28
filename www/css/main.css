@@ -3,6 +3,11 @@
     padding: 0;
 }
 
+body {
+    font-family: 'Source Code Pro', monospace;
+    background-color: #e0e0e0;
+}
+
 div#map {
     float: left;
 }
@@ -37,6 +42,10 @@ div#sidebar {
     height: 100%;
     width: 350px;
     background-color: #e0e0e0;
+    overflow: overlay;
+}
+
+div#stripeContainer {
     overflow: hidden;
     overflow-y:scroll;
 }
@@ -46,7 +55,6 @@ div.stripe {
     border-color: white;
     border-style: solid;
     border-width: 0px 5px;
-    font-family: 'Source Code Pro', monospace;
     font-size: 11px;
     margin: 5px 5px;
     padding: 5px;
@@ -86,7 +94,12 @@ div.element {
 div.callsign {
     font-weight: bold;
     float: left;
-    width: 150px;
+    width: 100px;
+}
+
+div.immatriculation {
+    font-weight: bold;
+    float: left;
 }
 
 div.icao24 {
@@ -110,4 +123,22 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+div#controlBox {
+    background-color: #f0f0f0;
+    height: 30px;
+    padding: 5px;
+}
+
+div.control {
+    float: right;
+}
+
+div.control input {
+    float: left;
+}
+
+div.control label {
+    float: left;
 }
