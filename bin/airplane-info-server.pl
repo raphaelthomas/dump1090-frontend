@@ -22,11 +22,6 @@ const my $NO_INFO            => {
     owner           => 'UNKN AIRLINE',
 };
 
-my $daemon = HTTP::Daemon->new(
-    LocalAddr => 'localhost',
-    LocalPort => 8088,
-);
-
 my $data_csv;
 
 if ($FETCH_ONLINE_DATA) {
@@ -51,7 +46,10 @@ foreach my $line (split(/\r?\n/, $data_csv)) {
     };
 }
 
-sleep 2;
+my $daemon = HTTP::Daemon->new(
+    LocalAddr => 'localhost',
+    LocalPort => 8088,
+) or die $@;
 
 while (my $connection = $daemon->accept()) {
     while (my $request = $connection->get_request()) {
