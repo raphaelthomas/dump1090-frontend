@@ -6,6 +6,7 @@ var MIN_OPACITY = 0.25;
 
 var MAP_CENTER_COORDINATES = [690000, 230000];
 var MAP_RESOLUTION = 100;
+var ZOOM_RESOLUTION = MAP_RESOLUTION/4;
 
 var ACTIVECLASS = 'active';
 
@@ -239,7 +240,7 @@ function fetchUpdatePlaneLayer() {
         });
 
         $.each(data, function () {
-            if ((this.validposition == 0) || (this.validtrack == 0) || (this.seen > MAX_SEEN)) {
+            if ((this.validposition == 0) || (this.seen > MAX_SEEN)) {
                 return true;
             }
 
@@ -269,6 +270,10 @@ function fetchUpdatePlaneLayer() {
                         geometry: new ol.geom.Point(coordinates),
                         name: this.hex
                     });
+
+                    if ($('div#stripe-'+this.hex).hasClass(ACTIVECLASS)) {
+                        panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
+                    }
                 }
             }
             else {
@@ -374,7 +379,7 @@ function updateStripe(plane) {
             }
             else {
                 $(this).addClass(ACTIVECLASS);
-                panToLocation(plane.getGeometry().getCoordinates(), MAP_RESOLUTION/2);
+                panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
             }
         });
     }
