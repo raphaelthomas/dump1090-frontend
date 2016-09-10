@@ -10,12 +10,12 @@
         <script src="http://api3.geo.admin.ch/loader.js?lang=en" type="text/javascript"></script>
         <div id="container">
             <div id="controlBox">
-                <div id="planeCount" class="element">0042 planes</div>
+                <div id="planeCount" class="element"></div>
                 <div id="time" class="element">2016-08-27 18:14:32</div>
                 <div class="control">
-                    <select>
+                    <select id="stripeSort">
+                        <option value="altitude" selected="selected">Altitude</option>
                         <option value="callsign">Callsign</option>
-                        <option value="altitude">Altitude</option>
                         <option value="speed">Speed</option>
                         <option value="track">Heading</option>
                         <option value="airline">Airline</option>
@@ -23,10 +23,10 @@
                     </select>
                 </div>
                 <div class="control">
-                    <input type="radio" id="imperial" name="unit" value="imperial">
-                    <label for="imperial"> Imperial</label><br> 
-                    <input type="radio" id="metric" name="unit" value="metric">
-                    <label for="metric"> Metric</label><br> 
+                    <select id="stripeUnit">
+                        <option value="imperial">Imperial</option>
+                        <option value="metric">Metric</option>
+                    </select>
                 </div>
             </div>
             <div id="map"></div>

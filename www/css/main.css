@@ -127,18 +127,10 @@ a:hover {
 
 div#controlBox {
     background-color: #f0f0f0;
-    height: 30px;
+    height: 20px;
     padding: 5px;
 }
 
 div.control {
     float: right;
-}
-
-div.control input {
-    float: left;
-}
-
-div.control label {
-    float: left;
 }
