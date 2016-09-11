@@ -58,7 +58,7 @@ div.stripe {
     font-size: 11px;
     margin: 5px 5px;
     padding: 5px;
-    overflow: auto;
+    overflow: hidden;
     cursor: pointer;
     height: 50px;
 }
