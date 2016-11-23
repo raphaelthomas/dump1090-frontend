@@ -14,7 +14,7 @@ use HTTP::Tiny;
 const my $DUMP1090_DATA_URL  => 'http://10.1.2.3:8080/dump1090/data.json';
 const my $AIRPLANE_DATA_URL  => 'http://junzisun.com/adb/download';
 const my $AIRPLANE_DATA_FILE => '../etc/aircraft_db.csv';
-const my $FETCH_ONLINE_DATA  => 0;
+const my $FETCH_ONLINE_DATA  => 1;
 const my $NO_INFO            => {
     immatriculation => '',
     plane_short     => '',
@@ -60,7 +60,7 @@ while (my $connection = $daemon->accept()) {
                 my $response_data = [];
                 my $dump1090_data = decode_json($dump1090_response->{content});
 
-                foreach my $flight (@$dump1090_data) {
+                foreach my $flight (sort { $a->{hex} cmp $b->{hex} } @$dump1090_data) {
                     my $hex = uc($flight->{hex});
 
                     if (exists $lookup_table{$hex}) {

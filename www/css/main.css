@@ -77,6 +77,7 @@ div.title {
     overflow: auto;
     margin: 0;
     margin-bottom: 3px;
+    height: 20px;
 }
 
 div.info {
@@ -92,6 +93,7 @@ div.element {
 }
 
 div.callsign {
+    height: 20px;
     font-weight: bold;
     float: left;
     width: 100px;
