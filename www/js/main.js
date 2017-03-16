@@ -236,7 +236,7 @@ map.addLayer(planeTrackLayer);
 map.addLayer(planeLayer);
 
 function fetchUpdatePlaneLayer() {
-    $.getJSON('/data-alt.json', function(data) {
+    $.getJSON('/data.json', function(data) {
         
         planeLayer.getSource().getFeatures().forEach(function (feature, index, array) {
             feature.set('dirty', true);
