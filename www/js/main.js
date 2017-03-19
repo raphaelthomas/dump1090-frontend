@@ -4,8 +4,8 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
-var MAP_CENTER_COORDINATES = [690000, 230000];
-var MAP_RESOLUTION = 100;
+var MAP_CENTER_COORDINATES = [151.1730877, -33.9399183];
+var MAP_RESOLUTION = 10;
 var ZOOM_RESOLUTION = MAP_RESOLUTION/4;
 
 var ACTIVECLASS = 'active';
@@ -33,11 +33,11 @@ $(window).resize(function() {
 
 setSize();
 
-var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
+var layer = new ol.layer.Tile({ source: new ol.source.OSM() });
 
 layer.setOpacity(0.3);
 
-var map = new ga.Map({
+var map = new ol.Map({
     interactions: ol.interaction.defaults({
         mouseWheelZoom: false,
     }),
@@ -45,8 +45,8 @@ var map = new ga.Map({
     target: 'map',
     layers: [layer],
     view: new ol.View({
-        resolution: MAP_RESOLUTION,
-        center: MAP_CENTER_COORDINATES
+        center: ol.proj.fromLonLat(MAP_CENTER_COORDINATES),
+        zoom: 11
     })
 });
 
@@ -247,7 +247,7 @@ function fetchUpdatePlaneLayer() {
                 return true;
             }
 
-            var coordinates = ol.proj.transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:21781');
+            var coordinates = ol.proj.fromLonLat([this.lon, this.lat]);
 
             var plane = planeLayer.getSource().getFeatureById(this.hex);
 
@@ -310,6 +310,30 @@ function fetchUpdatePlaneLayer() {
             plane.set('immatriculation', this.immatriculation);
             plane.set('plane_short', this.plane_short);
             plane.set('plane', this.plane_full);
+
+            var lon_text;
+            if (this.lon < 0) {
+                lon_text = 'W';
+                this.lat *= -1;
+            }
+            else {
+                lon_text = 'E';
+            }
+            var lon = deg2dm(this.lon);
+            lon_text = lon_text+pad(lon[0], 3, '0')+"&deg;"+Math.round(lon[1]*100)/100+"'";
+            plane.set('lon', lon_text);
+
+            var lat_text;
+            if (this.lat < 0) {
+                lat_text = 'S ';
+                this.lat *= -1;
+            }
+            else {
+                lat_text = 'N ';
+            }
+            var lat = deg2dm(this.lat);
+            lat_text = lat_text+pad(lat[0], 2, '0')+"&deg;"+Math.round(lat[1]*100)/100+"'";
+            plane.set('lat', lat_text);
 
             updateStripe(plane);
 
@@ -408,19 +432,17 @@ function updateStripe(plane) {
     $('div#stripe-'+hex+' div.icao24').html(hex.toUpperCase());
 
     var speed = Math.round(plane.get('speed')*1.852);
-    $('div#stripe-'+hex+' div.speed').html(pad(speed, 3)+' km/h');
+    $('div#stripe-'+hex+' div.speed').html('GS '+pad(speed, 3)+' km/h');
 
     var altitude = Math.round(plane.get('altitude')*0.3048);
     var vertRate = plane.get('vert_rate');
     var vertIndicator = (vertRate > 0) ? '\u2191' : ((vertRate < 0) ? '\u2193' : '&nbsp;');
-    $('div#stripe-'+hex+' div.altitude').html(pad(altitude, 5)+' m '+vertIndicator);
+    $('div#stripe-'+hex+' div.altitude').html('ALT '+pad(altitude, 5)+' m '+vertIndicator);
 
-    $('div#stripe-'+hex+' div.track').html(pad(plane.get('track'), 3)+'&deg;');
-    $('div#stripe-'+hex+' div.squawk').html(plane.get('squawk'));
+    $('div#stripe-'+hex+' div.track').html('HDG '+pad(plane.get('track'), 3)+'&deg;');
+    $('div#stripe-'+hex+' div.squawk').html('SQK '+plane.get('squawk'));
 
-    var coordinates = plane.getGeometry().getCoordinates();
-    $('div#stripe-'+hex+' div.position')
-        .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
+    $('div#stripe-'+hex+' div.position').html(plane.get('lat')+' '+plane.get('lon'));
 
     $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
     $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
@@ -452,4 +474,11 @@ function panToLocation(coordinates=MAP_CENTER_COORDINATES, resolution=MAP_RESOLU
 
     map.getView().setCenter(coordinates);
     map.getView().setResolution(resolution);
+}
+
+function deg2dm(deg) {
+    var d = parseInt(deg);
+    var m = Math.abs(deg - d) * 60;
+
+    return [d, m];
 }

@@ -40,7 +40,7 @@ div#container {
 div#sidebar {
     float: right;
     height: 100%;
-    width: 350px;
+    width: 500px;
     background-color: #e0e0e0;
     overflow: overlay;
 }
@@ -88,7 +88,7 @@ div.info {
 
 div.element {
     margin: 0;
-    margin-right: 10px;
+    margin-right: 15px;
     float: left;
 }
 
