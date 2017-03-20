@@ -236,7 +236,7 @@ map.addLayer(planeTrackLayer);
 map.addLayer(planeLayer);
 
 function fetchUpdatePlaneLayer() {
-    $.getJSON('/data-alt.json', function(data) {
+    $.getJSON('/data.json', function(data) {
         
         planeLayer.getSource().getFeatures().forEach(function (feature, index, array) {
             feature.set('dirty', true);
@@ -311,29 +311,9 @@ function fetchUpdatePlaneLayer() {
             plane.set('plane_short', this.plane_short);
             plane.set('plane', this.plane_full);
 
-            var lon_text;
-            if (this.lon < 0) {
-                lon_text = 'W';
-                this.lat *= -1;
-            }
-            else {
-                lon_text = 'E';
-            }
-            var lon = deg2dm(this.lon);
-            lon_text = lon_text+pad(lon[0], 3, '0')+"&deg;"+Math.round(lon[1]*100)/100+"'";
-            plane.set('lon', lon_text);
-
-            var lat_text;
-            if (this.lat < 0) {
-                lat_text = 'S ';
-                this.lat *= -1;
-            }
-            else {
-                lat_text = 'N ';
-            }
-            var lat = deg2dm(this.lat);
-            lat_text = lat_text+pad(lat[0], 2, '0')+"&deg;"+Math.round(lat[1]*100)/100+"'";
-            plane.set('lat', lat_text);
+            var pos_text = getPositionText(this.lon, this.lat);
+            plane.set('lon', pos_text[0]);
+            plane.set('lat', pos_text[1]);
 
             updateStripe(plane);
 
@@ -383,14 +363,14 @@ function updateStripe(plane) {
             '</div>'+
             '<div class="info">'+
             '<div class="element airplane"></div>'+
-            '<div class="element airline"></div>'+
+            '<div class="element position pos_ns"></div>'+
             '</div>'+
             '<div class="info">'+
             '<div class="element speed"></div>'+
             '<div class="element altitude"></div>'+
             '<div class="element track"></div>'+
             '<div class="element squawk"></div>'+
-            '<div class="element position"></div>'+
+            '<div class="element position pos_ew"></div>'+
             '</div>'+
             '</div>'
         );
@@ -427,30 +407,34 @@ function updateStripe(plane) {
     $('div#stripe-'+hex+' div.callsign').html(flight);
 
     var immatriculation = plane.get('immatriculation');
-    $('div#stripe-'+hex+' div.immatriculation').html(immatriculation);
+    $('div#stripe-'+hex+' div.immatriculation').html(plane.get('plane_short'));
 
     $('div#stripe-'+hex+' div.icao24').html(hex.toUpperCase());
 
     var speed = Math.round(plane.get('speed')*1.852);
-    $('div#stripe-'+hex+' div.speed').html('GS '+pad(speed, 3)+' km/h');
+    $('div#stripe-'+hex+' div.speed').html('GS '+pad(speed, 3)+'km/h');
 
     var altitude = Math.round(plane.get('altitude')*0.3048);
     var vertRate = plane.get('vert_rate');
     var vertIndicator = (vertRate > 0) ? '\u2191' : ((vertRate < 0) ? '\u2193' : '&nbsp;');
-    $('div#stripe-'+hex+' div.altitude').html('ALT '+pad(altitude, 5)+' m '+vertIndicator);
+    $('div#stripe-'+hex+' div.altitude').html('ALT '+pad(altitude, 5)+'m '+vertIndicator);
 
     $('div#stripe-'+hex+' div.track').html('HDG '+pad(plane.get('track'), 3)+'&deg;');
     $('div#stripe-'+hex+' div.squawk').html('SQK '+plane.get('squawk'));
 
-    $('div#stripe-'+hex+' div.position').html(plane.get('lat')+' '+plane.get('lon'));
+    $('div#stripe-'+hex+' div.pos_ns').html(plane.get('lat'));
+    $('div#stripe-'+hex+' div.pos_ew').html(plane.get('lon'));
 
-    $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
-    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
+    $('div#stripe-'+hex+' div.icao24').html(plane.get('owner'));
+    $('div#stripe-'+hex+' div.airplane').html(plane.get('plane')+' ('+immatriculation+')');
 }
 
 function pad(string, length, character='&nbsp;') {
     string += '';
-    var delta = (length - string.length);
+    var parts = string.split(".", 2);
+    var full = parts[0];
+
+    var delta = (length - full.length);
 
     if (delta > 0) {
         for (i = 0; i < delta; i++) {
@@ -478,7 +462,43 @@ function panToLocation(coordinates=MAP_CENTER_COORDINATES, resolution=MAP_RESOLU
 
 function deg2dm(deg) {
     var d = parseInt(deg);
-    var m = Math.abs(deg - d) * 60;
+    var m = Math.round(Math.abs(deg - d) * 60 * 100)/100;
+
+    m += '';
+    parts = m.split('.', 2);
+
+    if (parts.length == 1) {
+        m = m+'.00';
+    }
+    else if (parts[1].length == 1) {
+        m = m+'0';
+    }
 
     return [d, m];
+}
+
+function getPositionText(lon, lat) {
+    var lon_text;
+    if (lon < 0) {
+        lon_text = 'W';
+        lon *= -1;
+    }
+    else {
+        lon_text = 'E';
+    }
+    var lon = deg2dm(lon);
+    lon_text = lon_text+pad(lon[0], 3, '0')+"&deg;"+pad(lon[1], 2, '0')+"'";
+
+    var lat_text;
+    if (lat < 0) {
+        lat_text = 'S ';
+        lat *= -1;
+    }
+    else {
+        lat_text = 'N ';
+    }
+    var lat = deg2dm(lat);
+    lat_text = lat_text+pad(lat[0], 2, '0')+"&deg;"+pad(lat[1], 2, '0')+"'";
+
+    return [lon_text, lat_text];
 }
