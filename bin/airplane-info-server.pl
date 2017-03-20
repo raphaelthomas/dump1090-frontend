@@ -11,7 +11,7 @@ use HTTP::Response;
 use HTTP::Status;
 use HTTP::Tiny;
 
-const my $DUMP1090_DATA_URL  => 'http://10.1.2.3:8080/dump1090/data.json';
+const my $DUMP1090_DATA_URL  => 'http://localhost:8080/dump1090/data.json';
 const my $AIRPLANE_DATA_URL  => 'http://junzisun.com/adb/download';
 const my $AIRPLANE_DATA_FILE => '../etc/aircraft_db.csv';
 const my $FETCH_ONLINE_DATA  => 1;
