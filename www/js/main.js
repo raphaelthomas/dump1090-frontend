@@ -4,9 +4,10 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
-var MAP_CENTER_COORDINATES = [151.1730877, -33.9399183];
-var MAP_RESOLUTION = 10;
-var ZOOM_RESOLUTION = MAP_RESOLUTION/4;
+var MAP_OPACITY = 0.25;
+var MAP_CENTER_COORDINATES = ol.proj.fromLonLat([151.1730877, -33.9399183]);
+var MAP_ZOOM = 11;
+var PLANE_ZOOM = 13;
 
 var ACTIVECLASS = 'active';
 
@@ -35,18 +36,15 @@ setSize();
 
 var layer = new ol.layer.Tile({ source: new ol.source.OSM() });
 
-layer.setOpacity(0.3);
+layer.setOpacity(MAP_OPACITY);
 
 var map = new ol.Map({
-    interactions: ol.interaction.defaults({
-        mouseWheelZoom: false,
-    }),
     tooltip: false,
     target: 'map',
     layers: [layer],
     view: new ol.View({
-        center: ol.proj.fromLonLat(MAP_CENTER_COORDINATES),
-        zoom: 11
+        center: MAP_CENTER_COORDINATES,
+        zoom: MAP_ZOOM
     })
 });
 
@@ -275,7 +273,7 @@ function fetchUpdatePlaneLayer() {
                     });
 
                     if ($('div#stripe-'+this.hex).hasClass(ACTIVECLASS)) {
-                        panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
+                        panToLocation(plane.getGeometry().getCoordinates(), PLANE_ZOOM);
                     }
                 }
             }
@@ -388,7 +386,7 @@ function updateStripe(plane) {
             }
             else {
                 $(this).addClass(ACTIVECLASS);
-                panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
+                panToLocation(plane.getGeometry().getCoordinates(), PLANE_ZOOM);
             }
         });
     }
@@ -445,19 +443,10 @@ function pad(string, length, character='&nbsp;') {
     return string;
 }
 
-function panToLocation(coordinates=MAP_CENTER_COORDINATES, resolution=MAP_RESOLUTION) {
-    var pan = ol.animation.pan({
-        source: map.getView().getCenter()
-    });
-    map.beforeRender(pan);
+function panToLocation(coordinates=MAP_CENTER_COORDINATES, zoom=MAP_ZOOM) {
+    map.getView().animate({zoom: zoom, center: coordinates});
 
-    var zoom = ol.animation.zoom({
-        resolution: map.getView().getResolution()
-    });
-    map.beforeRender(zoom);
-
-    map.getView().setCenter(coordinates);
-    map.getView().setResolution(resolution);
+    return;
 }
 
 function deg2dm(deg) {
