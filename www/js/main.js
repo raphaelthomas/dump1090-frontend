@@ -342,7 +342,7 @@ function fetchUpdatePlaneLayer() {
         })
         .appendTo(wrapper);
 
-        $('div#planeCount').html(pad($('div.stripe').length, 3, '0')+' planes on map '+pad(data.length, 3, '0')+' planes received');
+        $('div#planeCount').html(pad($('div.stripe').length, 3, '0')+' planes on map '+pad(data.planes.length, 3, '0')+' planes received');
 
         $('div#time').html(data.time);
     });
