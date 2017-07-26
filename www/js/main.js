@@ -342,11 +342,9 @@ function fetchUpdatePlaneLayer() {
             var val_b = b.dataset.sort;
 
             if (isNumber(val_a) && isNumber(val_b)) {
-                console.log('Number: '+val_a+' '+val_b);
                 return val_a - val_b;
             }
             else {
-                console.log('String: '+val_a+' '+val_b);
                 return val_a.localeCompare(val_b);
             }
         })
