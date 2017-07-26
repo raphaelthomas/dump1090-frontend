@@ -10,11 +10,12 @@ use HTTP::Daemon;
 use HTTP::Response;
 use HTTP::Status;
 use HTTP::Tiny;
+use POSIX;
 
-const my $DUMP1090_DATA_URL  => 'http://10.1.2.3:8080/dump1090/data.json';
+const my $DUMP1090_DATA_URL  => 'http://10.1.2.39:8080/dump1090/data.json';
 const my $AIRPLANE_DATA_URL  => 'http://junzisun.com/adb/download';
 const my $AIRPLANE_DATA_FILE => '../etc/aircraft_db.csv';
-const my $FETCH_ONLINE_DATA  => 1;
+const my $FETCH_ONLINE_DATA  => 0;
 const my $NO_INFO            => {
     immatriculation => '',
     plane_short     => '',
@@ -57,17 +58,20 @@ while (my $connection = $daemon->accept()) {
             my $dump1090_response = HTTP::Tiny->new->get($DUMP1090_DATA_URL);
 
             if ($dump1090_response->{success}) {
-                my $response_data = [];
+                my $response_data = {
+                    time   => strftime("%F %T", gmtime()).' UTC',
+                    planes => [],
+                };
                 my $dump1090_data = decode_json($dump1090_response->{content});
 
                 foreach my $flight (sort { $a->{hex} cmp $b->{hex} } @$dump1090_data) {
                     my $hex = uc($flight->{hex});
 
                     if (exists $lookup_table{$hex}) {
-                        push(@$response_data, {%$flight, %{$lookup_table{$hex}}});
+                        push(@{$response_data->{planes}}, {%$flight, %{$lookup_table{$hex}}});
                     }
                     else {
-                        push(@$response_data, {%$flight, %$NO_INFO});
+                        push(@{$response_data->{planes}}, {%$flight, %$NO_INFO});
                     }
                 }
 

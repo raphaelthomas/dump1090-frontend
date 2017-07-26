@@ -41,7 +41,7 @@ div#sidebar {
     float: right;
     height: 100%;
     width: 350px;
-    background-color: #e0e0e0;
+    background-color: #333333;
     overflow: overlay;
 }
 
@@ -51,12 +51,13 @@ div#stripeContainer {
 }
 
 div.stripe {
-    background-color: #f0f0f0;
+    color: white;
+    background-color: #666666;
     border-color: white;
     border-style: solid;
     border-width: 0px 5px;
     font-size: 11px;
-    margin: 5px 5px;
+    margin: 0px 5px 5px 5px;
     padding: 5px;
     overflow: hidden;
     cursor: pointer;
@@ -128,11 +129,32 @@ a:hover {
 }
 
 div#controlBox {
-    background-color: #f0f0f0;
+    font-size: 14px;
+    background-color: #333333;
+    color: #ffffff;
     height: 20px;
     padding: 5px;
 }
 
 div.control {
     float: right;
+}
+
+label {
+    margin: 0;
+    margin-left: 10px;
+    padding: 0;
+}
+
+select {
+    font-family: 'Source Code Pro', monospace;
+    background: transparent;
+    width: 100px;
+    padding: 5px;
+    margin-left: -5px;
+	margin-right: 10px;
+    font-size: 14px;
+    border: 0;
+    border-radius: 0;
+    color: #ffffff;
 }

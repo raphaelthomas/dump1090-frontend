@@ -242,7 +242,7 @@ function fetchUpdatePlaneLayer() {
             feature.set('dirty', true);
         });
 
-        $.each(data, function () {
+        $.each(data.planes, function () {
             if ((this.validposition == 0) || (this.seen > MAX_SEEN)) {
                 return true;
             }
@@ -342,7 +342,9 @@ function fetchUpdatePlaneLayer() {
         })
         .appendTo(wrapper);
 
-        $('div#planeCount').html(pad($('div.stripe').length, 4)+' planes on map '+pad(data.length, 4)+' planes received');
+        $('div#planeCount').html(pad($('div.stripe').length, 3, '0')+' planes on map '+pad(data.length, 3, '0')+' planes received');
+
+        $('div#time').html(data.time);
     });
 }
 
