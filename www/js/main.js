@@ -338,7 +338,17 @@ function fetchUpdatePlaneLayer() {
         var wrapper = $('div#stripeContainer');
 
         wrapper.find('.stripe').sort(function(a, b) {
-                return a.dataset.altitude - b.dataset.altitude;
+            var val_a = a.dataset.sort;
+            var val_b = b.dataset.sort;
+
+            if (isNumber(val_a) && isNumber(val_b)) {
+                console.log('Number: '+val_a+' '+val_b);
+                return val_a - val_b;
+            }
+            else {
+                console.log('String: '+val_a+' '+val_b);
+                return val_a.localeCompare(val_b);
+            }
         })
         .appendTo(wrapper);
 
@@ -346,6 +356,10 @@ function fetchUpdatePlaneLayer() {
 
         $('div#time').html(data.time);
     });
+}
+
+function isNumber(n) {
+    return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
 }
 
 function updateStripe(plane) {
@@ -391,7 +405,7 @@ function updateStripe(plane) {
         });
     }
 
-    $('div#stripe-'+hex).attr('data-altitude', plane.get('altitude'));
+    $('div#stripe-'+hex).attr('data-sort', plane.get($('select#stripeSort').val()));
 
     var seen = plane.get('seen');
     var n = (seen >= MAX_SEEN) ? 0 : 120*(1-seen/MAX_SEEN);
