@@ -35,7 +35,7 @@ setSize();
 
 var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
 
-layer.setOpacity(0.3);
+layer.setOpacity(0.1);
 
 var map = new ga.Map({
     interactions: ol.interaction.defaults({
@@ -66,10 +66,18 @@ function getAltitudeColor(plane) {
 }
 
 function getTrackStyle(plane) {
+    var trackColor = getAltitudeColor(plane);
+
     return new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 1,
+            fill: new ol.style.Fill({
+                color: trackColor
+            }),
+        }),
         stroke: new ol.style.Stroke({
-            color: getAltitudeColor(plane),
-            width: 2
+            color: trackColor,
+            width: 1
         })
     });
 }
@@ -88,29 +96,37 @@ function getPlaneStyle(plane, highlighted = false) {
         planeCall = '['+plane.get('hex').toUpperCase()+']';
     }
 
-    var r = 0;
-    var g = 0;
-    var b = 0;
+    var r = 255;
+    var g = 255;
+    var b = 255;
 
     var planeSquawk = plane.get('squawk');
     switch (planeSquawk) {
         case '7100':
             r = 255;
+            g = 0;
+            b = 0;
             planeSquawk += ' REGA';
             font = 'bold '+font;
             break;
         case '7500':
             r = 255;
+            g = 0;
+            b = 0;
             planeSquawk += ' HI-JACK';
             font = 'bold '+font;
             break;
         case '7600':
             r = 255;
+            g = 0;
+            b = 0;
             planeSquawk += ' COMFAIL';
             font = 'bold '+font;
             break;
         case '7700':
             r = 255;
+            g = 0;
+            b = 0;
             planeSquawk += ' EMERG';
             font = 'bold '+font;
             break;
@@ -160,20 +176,18 @@ function getPlaneStyle(plane, highlighted = false) {
             geometry: line,
             stroke: new ol.style.Stroke({
                 color: strokeColor,
-                width: 2
+                width: 1
             })
         }),
         new ol.style.Style({
             image: new ol.style.Circle({
-                radius: 5,
-                /*
+                radius: 2,
                 fill: new ol.style.Fill({
                     color: fillColor
                 }),
-                */
                 stroke: new ol.style.Stroke({
                     color: strokeColor,
-                    width: 2
+                    width: 1
                 })
             })
         }),
@@ -267,12 +281,15 @@ function fetchUpdatePlaneLayer() {
                     });
 
                     track.setStyle(getTrackStyle(plane));
-                    planeTrackLayer.getSource().addFeature(track);
+                    // planeTrackLayer.getSource().addFeature(track);
 
                     var trackPoint = new ol.Feature({
-                        geometry: new ol.geom.Point(coordinates),
+                        geometry: new ol.geom.Point(oldCoordinates),
                         name: this.hex
                     });
+
+                    trackPoint.setStyle(getTrackStyle(plane));
+                    planeTrackLayer.getSource().addFeature(trackPoint);
 
                     if ($('div#stripe-'+this.hex).hasClass(ACTIVECLASS)) {
                         panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
