@@ -12,7 +12,7 @@ use HTTP::Status;
 use HTTP::Tiny;
 use POSIX;
 
-const my $DUMP1090_DATA_URL  => 'http://10.1.2.39:8080/dump1090/data.json';
+const my $DUMP1090_DATA_URL  => 'http://localhost:8080/data.json';
 const my $AIRPLANE_DATA_URL  => 'http://junzisun.com/adb/download';
 const my $AIRPLANE_DATA_FILE => '../etc/aircraft_db.csv';
 const my $FETCH_ONLINE_DATA  => 0;
@@ -40,8 +40,8 @@ foreach my $line (split(/\r?\n/, $data_csv)) {
     my ($hex, $immatriculation, $plane_short, $plane_full, $owner) = split(',', $line);
 
     $lookup_table{uc($hex)} = {
-        immatriculation => $immatriculation,
-        plane_short     => $plane_short,
+        immatriculation => uc($immatriculation),
+        plane_short     => uc($plane_short),
         plane_full      => $plane_full,
         owner           => $owner,
     };
@@ -50,6 +50,7 @@ foreach my $line (split(/\r?\n/, $data_csv)) {
 my $daemon = HTTP::Daemon->new(
     LocalAddr => 'localhost',
     LocalPort => 8088,
+    ReuseAddr => 1,
 ) or die $@;
 
 while (my $connection = $daemon->accept()) {
