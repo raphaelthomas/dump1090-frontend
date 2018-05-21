@@ -4,7 +4,7 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
-var MAP_CENTER_COORDINATES = [690000, 230000];
+var MAP_CENTER_COORDINATES = [151.238327, -33.888693];
 var MAP_RESOLUTION = 100;
 var ZOOM_RESOLUTION = MAP_RESOLUTION/4;
 
@@ -33,22 +33,30 @@ $(window).resize(function() {
 
 setSize();
 
-var layer = ga.layer.create('ch.bazl.luftfahrtkarten-icao');
+var view = new ol.View({
+    center: ol.proj.fromLonLat(MAP_CENTER_COORDINATES),
+    extent: ol.proj.get('EPSG:3857').getExtent(),
+    zoom: 11
+});
 
-layer.setOpacity(0.1);
 
-var map = new ga.Map({
+var map = new ol.Map({
     interactions: ol.interaction.defaults({
         mouseWheelZoom: false,
     }),
     tooltip: false,
+    layers: [
+        new ol.layer.Tile({
+            source: new ol.source.OSM({
+            url : "http://{a-c}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+            wrapX: false
+        })
+      })
+    ],
     target: 'map',
-    layers: [layer],
-    view: new ol.View({
-        resolution: MAP_RESOLUTION,
-        center: MAP_CENTER_COORDINATES
-    })
+    view: view
 });
+
 
 function getAltitudeColor(plane) {
     var altitude = plane.get('altitude');
@@ -77,7 +85,7 @@ function getTrackStyle(plane) {
         }),
         stroke: new ol.style.Stroke({
             color: trackColor,
-            width: 1
+            width: 2
         })
     });
 }
@@ -176,18 +184,18 @@ function getPlaneStyle(plane, highlighted = false) {
             geometry: line,
             stroke: new ol.style.Stroke({
                 color: strokeColor,
-                width: 1
+                width: 2
             })
         }),
         new ol.style.Style({
             image: new ol.style.Circle({
-                radius: 2,
-                fill: new ol.style.Fill({
-                    color: fillColor
-                }),
+                radius: 4,
+                // fill: new ol.style.Fill({
+                //     color: fillColor
+                // }),
                 stroke: new ol.style.Stroke({
                     color: strokeColor,
-                    width: 1
+                    width: 2
                 })
             })
         }),
@@ -251,7 +259,6 @@ map.addLayer(planeLayer);
 
 function fetchUpdatePlaneLayer() {
     $.getJSON('/data.json', function(data) {
-        
         planeLayer.getSource().getFeatures().forEach(function (feature, index, array) {
             feature.set('dirty', true);
         });
@@ -261,7 +268,7 @@ function fetchUpdatePlaneLayer() {
                 return true;
             }
 
-            var coordinates = ol.proj.transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:21781');
+            var coordinates = ol.proj.transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
 
             var plane = planeLayer.getSource().getFeatureById(this.hex);
 
@@ -281,7 +288,7 @@ function fetchUpdatePlaneLayer() {
                     });
 
                     track.setStyle(getTrackStyle(plane));
-                    // planeTrackLayer.getSource().addFeature(track);
+                    planeTrackLayer.getSource().addFeature(track);
 
                     var trackPoint = new ol.Feature({
                         geometry: new ol.geom.Point(oldCoordinates),
@@ -411,11 +418,11 @@ function updateStripe(plane) {
 
             if ($(this).hasClass(ACTIVECLASS)) {
                 $(this).removeClass(ACTIVECLASS);
-                panToLocation();
+                // panToLocation();
             }
             else {
                 $(this).addClass(ACTIVECLASS);
-                panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
+                // panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
             }
         });
     }
@@ -450,8 +457,10 @@ function updateStripe(plane) {
     $('div#stripe-'+hex+' div.squawk').html(plane.get('squawk'));
 
     var coordinates = plane.getGeometry().getCoordinates();
+    /*
     $('div#stripe-'+hex+' div.position')
         .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
+    */
 
     $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
     $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
@@ -470,13 +479,14 @@ function pad(string, length, character='&nbsp;') {
     return string;
 }
 
+// FIXME
 function panToLocation(coordinates=MAP_CENTER_COORDINATES, resolution=MAP_RESOLUTION) {
-    var pan = ol.animation.pan({
+    var pan = ol.view.animation.pan({
         source: map.getView().getCenter()
     });
     map.beforeRender(pan);
 
-    var zoom = ol.animation.zoom({
+    var zoom = ol.view.animation.zoom({
         resolution: map.getView().getResolution()
     });
     map.beforeRender(zoom);
