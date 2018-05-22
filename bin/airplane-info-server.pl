@@ -18,7 +18,7 @@ const my $AIRPLANE_DATA_FILE => '../etc/aircraft_db.csv';
 const my $FETCH_ONLINE_DATA  => 0;
 const my $NO_INFO            => {
     immatriculation => '',
-    plane_short     => '',
+    plane_short     => 'UNKN',
     plane_full      => 'UNKN AIRCRAFT',
     owner           => 'UNKN AIRLINE',
 };
@@ -40,10 +40,10 @@ foreach my $line (split(/\r?\n/, $data_csv)) {
     my ($hex, $immatriculation, $plane_short, $plane_full, $owner) = split(',', $line);
 
     $lookup_table{uc($hex)} = {
-        immatriculation => uc($immatriculation),
-        plane_short     => uc($plane_short),
-        plane_full      => $plane_full,
-        owner           => $owner,
+        ($immatriculation ? (immatriculation => uc($immatriculation)) : ()),
+        ($plane_short     ? (plane_short     => uc($plane_short))     : ()),
+        ($plane_full      ? (plane_full      => $plane_full)          : ()),
+        ($owner           ? (owner           => $owner)               : ()),
     };
 }
 
@@ -69,7 +69,7 @@ while (my $connection = $daemon->accept()) {
                     my $hex = uc($flight->{hex});
 
                     if (exists $lookup_table{$hex}) {
-                        push(@{$response_data->{planes}}, {%$flight, %{$lookup_table{$hex}}});
+                        push(@{$response_data->{planes}}, {%$flight, %$NO_INFO, %{$lookup_table{$hex}}});
                     }
                     else {
                         push(@{$response_data->{planes}}, {%$flight, %$NO_INFO});
