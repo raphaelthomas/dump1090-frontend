@@ -168,5 +168,6 @@ div#planeCount {
 }
 
 .ol-control button {
-    background-color: black;
+    background-color: #000000;
+    color: #aaaaaa;
 }
