@@ -41,10 +41,6 @@ var view = new ol.View({
 
 
 var map = new ol.Map({
-    interactions: ol.interaction.defaults({
-        mouseWheelZoom: false,
-    }),
-    tooltip: false,
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM({
@@ -56,7 +52,6 @@ var map = new ol.Map({
     target: 'map',
     view: view
 });
-
 
 function getAltitudeColor(plane) {
     var altitude = plane.get('altitude');
@@ -359,7 +354,7 @@ function fetchUpdatePlaneLayer() {
             }
         });
 
-        var wrapper = $('div#stripeContainer');
+        var wrapper = $('div#sidebar');
 
         wrapper.find('.stripe').sort(function(a, b) {
             var val_a = a.dataset.sort;
@@ -388,7 +383,7 @@ function updateStripe(plane) {
     var hex = plane.get('hex');
 
     if ($('div#stripe-'+hex).length == 0) {
-        $("#stripeContainer").append(
+        $("#sidebar").append(
             '<div id="stripe-'+hex+'" class="stripe">'+
             '<div class="title">'+
             '<div class="callsign"></div>'+

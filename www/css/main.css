@@ -40,14 +40,10 @@ div#container {
 div#sidebar {
     float: right;
     height: 100%;
-    width: 400px;
+    width: 500px;
     background-color: #333333;
-    overflow: overlay;
-}
-
-div#stripeContainer {
     overflow: hidden;
-    overflow-y:scroll;
+    overflow-y: scroll;
 }
 
 div.stripe {
@@ -162,4 +158,15 @@ select {
 
 div#planeCount {
     margin-right: 50px;
+}
+
+.ol-control {
+    position: absolute;
+    background-color: rgba(255,255,255,.2);
+    border-radius: 2px;
+    padding: 1px;
+}
+
+.ol-control button {
+    background-color: black;
 }
