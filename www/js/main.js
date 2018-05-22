@@ -161,8 +161,8 @@ function getPlaneStyle(plane, highlighted = false) {
     var strokeColor = [r, g, b, opacity];
     var textColor = [r, g, b, opacity];
 
-    // speed vector unit is meters per 10 seconds, i.e. where the plane is in 10 seconds
-    var speed = plane.get('speed')*0.514444*10;
+    // speed vector unit is meters per 15 seconds, i.e. where the plane is in 10 seconds
+    var speed = plane.get('speed')*0.514444*15;
     var track = plane.get('track');
     var pointFrom = plane.getGeometry().getCoordinates();
     var pointTo = [
