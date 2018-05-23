@@ -436,7 +436,7 @@ function updateStripe(plane) {
             '<div class="detailsection">'+
             '<div class="line subtitle">META</div>'+
             '<div class="line">'+
-            '<div class="label">LTS</div>'+
+            '<div class="label">Last Time Seen</div>'+
             '<div class="value lts"></div>'+
             '</div>'+
             '<div class="line">'+
