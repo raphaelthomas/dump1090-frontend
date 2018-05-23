@@ -161,10 +161,11 @@ div.value {
 div.details {
     float: none;
     color: #000000;
+    background-color: #ffffff;
 }
 
 div.detailsection {
-    margin-top: 2px;
+    padding-top: 2px;
     padding-bottom: 2px;
     border-width: 0 0 1px 0;
     border-color: #000000;
