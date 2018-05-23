@@ -5,8 +5,8 @@ var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
 var MAP_CENTER_COORDINATES = [151.238327, -33.888693];
-var MAP_RESOLUTION = 100;
-var ZOOM_RESOLUTION = MAP_RESOLUTION/4;
+var ZOOM = 10;
+var ZOOM_FOCUS = 10;
 
 var ACTIVECLASS = 'active';
 
@@ -36,9 +36,8 @@ setSize();
 var view = new ol.View({
     center: ol.proj.fromLonLat(MAP_CENTER_COORDINATES),
     extent: ol.proj.get('EPSG:3857').getExtent(),
-    zoom: 11
+    zoom: ZOOM
 });
-
 
 var map = new ol.Map({
     layers: [
@@ -294,7 +293,7 @@ function fetchUpdatePlaneLayer() {
                     planeTrackLayer.getSource().addFeature(trackPoint);
 
                     if ($('div#stripe-'+this.hex).hasClass(ACTIVECLASS)) {
-                        panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
+                        panToLocation(plane.getGeometry().getCoordinates(), ZOOM_FOCUS);
                     }
                 }
             }
@@ -386,38 +385,97 @@ function updateStripe(plane) {
         $("#sidebar").append(
             '<div id="stripe-'+hex+'" class="stripe">'+
             '<div class="title">'+
-            '<div class="callsign"></div>'+
-            '<div class="immatriculation"></div>'+
-            '<div class="icao24"></div>'+
+            '<div class="element callsign"></div>'+
+            '<div class="element immatriculation"></div>'+
+            '<div class="element airplane_short"></div>'+
+            '<div class="element squawk"></div>'+
             '</div>'+
-            '<div class="info">'+
-            '<div class="element airplane"></div>'+
-            '<div class="element airline"></div>'+
+            '<div class="details">'+
+            '<div class="detailsection">'+
+            '<div class="line subtitle">TRACKING</div>'+
+            '<div class="line">'+
+            '<div class="label">Squawk</div>'+
+            '<div class="value squawk"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Speed</div>'+
+            '<div class="value speed"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Altitude</div>'+
+            '<div class="value altitude"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Heading</div>'+
+            '<div class="value track"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Position</div>'+
+            '<div class="value position"></div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="detailsection">'+
+            '<div class="line subtitle">AIRCRAFT</div>'+
+            '<div class="line">'+
+            '<div class="label">Owner</div>'+
+            '<div class="value airline"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Type</div>'+
+            '<div class="value airplane"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Immatriculation</div>'+
+            '<div class="value immatriculation"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">ICAO Address</div>'+
+            '<div class="value icao24"></div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="detailsection">'+
+            '<div class="line subtitle">META</div>'+
+            '<div class="line">'+
+            '<div class="label">LTS</div>'+
+            '<div class="value lts"></div>'+
+            '</div>'+
+            '<div class="line">'+
+            '<div class="label">Messages Seen</div>'+
+            '<div class="value messages"></div>'+
+            '</div>'+
+            '</div>'+
             '</div>'+
             '<div class="info">'+
             '<div class="element speed"></div>'+
             '<div class="element altitude"></div>'+
             '<div class="element track"></div>'+
-            '<div class="element squawk"></div>'+
             '<div class="element position"></div>'+
             '</div>'+
             '</div>'
         );
 
+        $('div#stripe-'+hex+' div.details').hide();
+
         $('div#stripe-'+hex).click(function() {
             $('div.stripe').each(function() {
                 if ($(this).attr('id') != 'stripe-'+hex) {
+                    $('div.details', this).hide();
+                    $('div.info', this).show();
                     $(this).removeClass(ACTIVECLASS);
                 }
             });
 
             if ($(this).hasClass(ACTIVECLASS)) {
+                $('div.details', this).hide();
+                $('div.info', this).show();
                 $(this).removeClass(ACTIVECLASS);
-                // panToLocation();
+                panToLocation();
             }
             else {
+                $('div.details', this).show();
+                $('div.info', this).hide();
                 $(this).addClass(ACTIVECLASS);
-                // panToLocation(plane.getGeometry().getCoordinates(), ZOOM_RESOLUTION);
+                panToLocation(plane.getGeometry().getCoordinates(), ZOOM);
             }
         });
     }
@@ -451,14 +509,18 @@ function updateStripe(plane) {
     $('div#stripe-'+hex+' div.track').html(pad(plane.get('track'), 3)+'&deg;');
     $('div#stripe-'+hex+' div.squawk').html(plane.get('squawk'));
 
-    var coordinates = plane.getGeometry().getCoordinates();
-    /*
+    var coordinates = ol.proj.transform(plane.getGeometry().getCoordinates(), 'EPSG:3857', 'EPSG:4326');
     $('div#stripe-'+hex+' div.position')
-        .html(Math.round(coordinates[0])+'/'+Math.round(coordinates[1]));
-    */
+        .html(Math.round(coordinates[0]*1000)/1000+','+Math.round(coordinates[1]*1000)/1000);
 
+    $('div#stripe-'+hex+' div.lts').html(plane.get('seen')+'s ago');
+    $('div#stripe-'+hex+' div.messages').html(plane.get('messages'));
     $('div#stripe-'+hex+' div.airline').html(plane.get('owner'));
     $('div#stripe-'+hex+' div.airplane').html(plane.get('plane'));
+    $('div#stripe-'+hex+' div.airplane_short').html(plane.get('plane_short'));
+    $('div#stripe-'+hex+' div.airplane_short').prop('title', plane.get('plane'));
+    $('div#stripe-'+hex+' div.immatriculation').prop('title', hex.toUpperCase());
+    $('div#stripe-'+hex+' div.callsign').prop('title', plane.get('owner'));
 }
 
 function pad(string, length, character='&nbsp;') {
@@ -474,18 +536,11 @@ function pad(string, length, character='&nbsp;') {
     return string;
 }
 
-// FIXME
-function panToLocation(coordinates=MAP_CENTER_COORDINATES, resolution=MAP_RESOLUTION) {
-    var pan = ol.view.animation.pan({
-        source: map.getView().getCenter()
-    });
-    map.beforeRender(pan);
-
-    var zoom = ol.view.animation.zoom({
-        resolution: map.getView().getResolution()
-    });
-    map.beforeRender(zoom);
+function panToLocation(coordinates, zoom=ZOOM) {
+    if (!coordinates) {
+        coordinates = ol.proj.fromLonLat(MAP_CENTER_COORDINATES);
+    }
 
     map.getView().setCenter(coordinates);
-    map.getView().setResolution(resolution);
+    // map.getView().setZoom(zoom);
 }
