@@ -52,6 +52,19 @@ var map = new ol.Map({
     view: view
 });
 
+// var cloudLayer = new ol.layer.Tile({
+//     source: new ol.source.XYZ({
+//         url: 'https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=KEY',
+//     })
+// });
+// var precipitationLayer = new ol.layer.Tile({
+//     source: new ol.source.XYZ({
+//         url: 'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=KEY',
+//     })
+// });
+// map.addLayer(cloudLayer);
+// map.addLayer(precipitationLayer);
+
 function getAltitudeColor(plane) {
     var altitude = plane.get('altitude');
 
