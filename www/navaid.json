@@ -214,5 +214,13 @@
     "frequency": 113.75,
     "latitude": 46.834444,
     "longitude": 9.795
+  },
+  {
+    "short": "HOC",
+    "type": "DME",
+    "name": "Hochwald",
+    "frequency": 113.20,
+    "latitude": 47.466599,
+    "longitude": 7.665440
   }
 ]
