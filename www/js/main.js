@@ -4,8 +4,8 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
-var MAP_CENTER_COORDINATES = [151.238327, -33.888693];
-var ZOOM = 10;
+var MAP_CENTER_COORDINATES = [8.56, 47.38];
+var ZOOM = 9;
 var ZOOM_FOCUS = 10;
 
 var ACTIVECLASS = 'active';
@@ -43,6 +43,7 @@ var map = new ol.Map({
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM({
+            // url : "http://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
             url : "http://{a-c}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
             wrapX: false
         })
@@ -114,6 +115,9 @@ function getPlaneStyle(plane, highlighted = false) {
     var r = 255;
     var g = 255;
     var b = 255;
+    // var r = 0;
+    // var g = 0;
+    // var b = 0;
 
     var planeSquawk = plane.get('squawk');
     switch (planeSquawk) {
@@ -554,6 +558,6 @@ function panToLocation(coordinates, zoom=ZOOM) {
         coordinates = ol.proj.fromLonLat(MAP_CENTER_COORDINATES);
     }
 
-    map.getView().setCenter(coordinates);
+    // map.getView().setCenter(coordinates);
     // map.getView().setZoom(zoom);
 }
