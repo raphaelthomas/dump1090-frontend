@@ -4,7 +4,8 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
-var MAP_CENTER_COORDINATES = [8.56, 47.38];
+// var MAP_CENTER_COORDINATES = [8.56, 47.38];
+var MAP_CENTER_COORDINATES = [8.222665776, 46.800663464];
 var ZOOM = 9;
 var ZOOM_FOCUS = 10;
 
@@ -44,7 +45,7 @@ var map = new ol.Map({
         new ol.layer.Tile({
             source: new ol.source.OSM({
             // url : "http://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-            url : "http://{a-c}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+            url : "http://{a-c}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png",
             wrapX: false
         })
       })
@@ -102,6 +103,107 @@ function toRad(angle) {
     return angle*Math.PI/180;
 }
 
+function getNavAidStyle(navaid) {
+    var font = '11px Menlo,Courier,monospace';
+
+    var r = 75;
+    var g = 150;
+    var b = 75;
+    // var r = 0;
+    // var g = 0;
+    // var b = 0;
+
+    var color = [r, g, b];
+
+    var style = [
+        new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 1,
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+                stroke: new ol.style.Stroke({
+                    color: color,
+                    width: 1
+                })
+            })
+        }),
+        new ol.style.Style({
+            text: new ol.style.Text({
+                font: font,
+                text: navaid.get('type'),
+                textAlign: 'left',
+                offsetX: 10,
+                offsetY: 6,
+                rotation: 0,
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+            })
+        }),
+        new ol.style.Style({
+            text: new ol.style.Text({
+                font: font,
+                text: navaid.get('short')+' '+navaid.get('freq'),
+                textAlign: 'left',
+                offsetX: 10,
+                offsetY: -6,
+                rotation: 0,
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+            })
+        }),
+    ];
+
+    if (navaid.get('type') == 'NDB') {
+        style.push(
+            new ol.style.Style({
+                image: new ol.style.Circle({
+                    stroke: new ol.style.Stroke({
+                        color: color,
+                        width: 1
+                    }),
+                    radius: 5
+                })
+            }),
+        );
+    }
+    else if (navaid.get('type') == 'DME') {
+        style.push(
+            new ol.style.Style({
+                image: new ol.style.RegularShape({
+                    stroke: new ol.style.Stroke({
+                        color: color,
+                        width: 1
+                    }),
+                    angle: Math.PI / 4,
+                    points: 4,
+                    radius: 5
+                })
+            }),
+        );
+    }
+    else {
+        style.push(
+            new ol.style.Style({
+                image: new ol.style.RegularShape({
+                    stroke: new ol.style.Stroke({
+                        color: color,
+                        width: 1
+                    }),
+                    angle: Math.PI / 6,
+                    points: 6,
+                    radius: 5
+                })
+            }),
+        );
+    }
+
+
+    return style;
+}
+
 function getPlaneStyle(plane, highlighted = false) {
     var font = '11px Menlo,Courier,monospace';
     var seen = plane.get('seen');
@@ -126,28 +228,24 @@ function getPlaneStyle(plane, highlighted = false) {
             g = 0;
             b = 0;
             planeSquawk += ' REGA';
-            font = 'bold '+font;
             break;
         case '7500':
             r = 255;
             g = 0;
             b = 0;
             planeSquawk += ' HI-JACK';
-            font = 'bold '+font;
             break;
         case '7600':
             r = 255;
             g = 0;
             b = 0;
             planeSquawk += ' COMFAIL';
-            font = 'bold '+font;
             break;
         case '7700':
             r = 255;
             g = 0;
             b = 0;
             planeSquawk += ' EMERG';
-            font = 'bold '+font;
             break;
     }
 
@@ -265,8 +363,35 @@ var planeTrackLayer = new ol.layer.Vector({
     source: new ol.source.Vector()
 });
 
+var navAidLayer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+});
+
 map.addLayer(planeTrackLayer);
+map.addLayer(navAidLayer);
 map.addLayer(planeLayer);
+
+function updateNavAid() {
+    $.getJSON('/navaid.json', function(data) {
+        $.each(data, function () {
+            console.log(this);
+            var coordinates = ol.proj.transform([this.longitude, this.latitude], 'EPSG:4326', 'EPSG:3857');
+            navaid = new ol.Feature({
+                geometry: new ol.geom.Point(coordinates),
+            });
+
+            navaid.set('short', this.short);
+            navaid.set('name', this.name);
+            navaid.set('freq', this.frequency);
+            navaid.set('type', this.type);
+
+            navAidLayer.getSource().addFeature(navaid);
+            navaid.setStyle(getNavAidStyle(navaid));
+        });
+    });
+}
+
+updateNavAid();
 
 function fetchUpdatePlaneLayer() {
     $.getJSON('/data.json', function(data) {
