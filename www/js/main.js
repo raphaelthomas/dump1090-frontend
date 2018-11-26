@@ -4,8 +4,7 @@ var MIN_ALTITUDE = 0;
 var MAX_ALTITUDE = 40000;
 var MIN_OPACITY = 0.25;
 
-// var MAP_CENTER_COORDINATES = [8.56, 47.38];
-var MAP_CENTER_COORDINATES = [8.222665776, 46.800663464];
+var MAP_CENTER_COORDINATES = [8.56, 47.38];
 var ZOOM = 9;
 var ZOOM_FOCUS = 10;
 
@@ -28,6 +27,7 @@ function setSize() {
     });
 }
 
+
 $(window).resize(function() {
     setSize();
 });
@@ -41,14 +41,24 @@ var view = new ol.View({
 });
 
 var map = new ol.Map({
+    interactions: ol.interaction.defaults({
+        doubleClickZoom: false,
+        dragAndDrop: false,
+        dragPan: false,
+        keyboardPan: false,
+        keyboardZoom: false,
+        mouseWheelZoom: false,
+        pointer: false,
+        select: false
+    }),
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM({
-            // url : "http://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-            url : "http://{a-c}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png",
-            wrapX: false
+                // url : "http://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                url : "http://{a-c}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png",
+                wrapX: false
+            })
         })
-      })
     ],
     target: 'map',
     view: view
@@ -66,6 +76,34 @@ var map = new ol.Map({
 // });
 // map.addLayer(cloudLayer);
 // map.addLayer(precipitationLayer);
+
+(function worker() {
+    fetchUpdatePlaneLayer();
+    setTimeout(worker, UPDATE_INTERVAL_MS);
+})();
+
+var planeLayer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+});
+
+var planeTrackLayer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+});
+
+var staticLayer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+});
+
+map.addLayer(staticLayer);
+map.addLayer(planeTrackLayer);
+map.addLayer(planeLayer);
+
+updateStaticLayer();
+
+function updateStaticLayer() {
+    updateReceiverLocation();
+    updateNavAid();
+}
 
 function getAltitudeColor(plane) {
     var altitude = plane.get('altitude');
@@ -103,15 +141,54 @@ function toRad(angle) {
     return angle*Math.PI/180;
 }
 
+function getReceiverStyle(receiver) {
+    var font = '11px Menlo,Courier,monospace';
+
+    var r = 80;
+    var g = 40;
+    var b = 40;
+
+    var color = [r, g, b];
+
+    var style = [
+        new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 1,
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+                stroke: new ol.style.Stroke({
+                    color: color,
+                    width: 1
+                })
+            })
+        }),
+    ];
+
+    var i;
+    for (i = 1; i <= 20; i++) {
+        style.push(
+            new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: i*100,
+                    stroke: new ol.style.Stroke({
+                        color: color,
+                        width: 1
+                    })
+                })
+            })
+        );
+    }
+
+    return style;
+}
+
 function getNavAidStyle(navaid) {
     var font = '11px Menlo,Courier,monospace';
 
     var r = 75;
     var g = 150;
     var b = 75;
-    // var r = 0;
-    // var g = 0;
-    // var b = 0;
 
     var color = [r, g, b];
 
@@ -199,7 +276,6 @@ function getNavAidStyle(navaid) {
             }),
         );
     }
-
 
     return style;
 }
@@ -350,31 +426,23 @@ function getPlaneStyle(plane, highlighted = false) {
     ];
 }
 
-(function worker() {
-    fetchUpdatePlaneLayer();
-    setTimeout(worker, UPDATE_INTERVAL_MS);
-})();
+function updateReceiverLocation() {
+    $.getJSON('/receiver.json', function(data) {
+        console.log(data);
+        var coordinates = ol.proj.transform([data.receiver.longitude, data.receiver.latitude], 'EPSG:4326', 'EPSG:3857');
+        receiver = new ol.Feature({
+            geometry: new ol.geom.Point(coordinates),
+        });
 
-var planeLayer = new ol.layer.Vector({
-    source: new ol.source.Vector()
-});
-
-var planeTrackLayer = new ol.layer.Vector({
-    source: new ol.source.Vector()
-});
-
-var navAidLayer = new ol.layer.Vector({
-    source: new ol.source.Vector()
-});
-
-map.addLayer(planeTrackLayer);
-map.addLayer(navAidLayer);
-map.addLayer(planeLayer);
+        staticLayer.getSource().addFeature(receiver);
+        receiver.setStyle(getReceiverStyle(receiver));
+        map.getView().setCenter(coordinates);
+    });
+}
 
 function updateNavAid() {
     $.getJSON('/navaid.json', function(data) {
         $.each(data, function () {
-            console.log(this);
             var coordinates = ol.proj.transform([this.longitude, this.latitude], 'EPSG:4326', 'EPSG:3857');
             navaid = new ol.Feature({
                 geometry: new ol.geom.Point(coordinates),
@@ -385,13 +453,11 @@ function updateNavAid() {
             navaid.set('freq', this.frequency);
             navaid.set('type', this.type);
 
-            navAidLayer.getSource().addFeature(navaid);
+            staticLayer.getSource().addFeature(navaid);
             navaid.setStyle(getNavAidStyle(navaid));
         });
     });
 }
-
-updateNavAid();
 
 function fetchUpdatePlaneLayer() {
     $.getJSON('/data.json', function(data) {
