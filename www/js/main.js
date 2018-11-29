@@ -102,7 +102,8 @@ updateStaticLayer();
 
 function updateStaticLayer() {
     updateReceiverLocation();
-    updateNavAid();
+    updateNavAids();
+    updateAirports();
 }
 
 function getAltitudeColor(plane) {
@@ -280,6 +281,46 @@ function getNavAidStyle(navaid) {
     return style;
 }
 
+function getAirportStyle(airport) {
+    var font = '11px Menlo,Courier,monospace';
+
+    var r = 75;
+    var g = 75;
+    var b = 150;
+
+    var color = [r, g, b];
+
+    var style = [
+        new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 1,
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+                stroke: new ol.style.Stroke({
+                    color: color,
+                    width: 1
+                })
+            })
+        }),
+        new ol.style.Style({
+            text: new ol.style.Text({
+                font: font,
+                text: airport.get('icao'),
+                textAlign: 'right',
+                offsetX: -10,
+                offsetY: 0,
+                rotation: 0,
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+            })
+        }),
+    ];
+
+    return style;
+}
+
 function getPlaneStyle(plane, highlighted = false) {
     var font = '11px Menlo,Courier,monospace';
     var seen = plane.get('seen');
@@ -440,7 +481,7 @@ function updateReceiverLocation() {
     });
 }
 
-function updateNavAid() {
+function updateNavAids() {
     $.getJSON('/navaid.json', function(data) {
         $.each(data, function () {
             var coordinates = ol.proj.transform([this.longitude, this.latitude], 'EPSG:4326', 'EPSG:3857');
@@ -455,6 +496,24 @@ function updateNavAid() {
 
             staticLayer.getSource().addFeature(navaid);
             navaid.setStyle(getNavAidStyle(navaid));
+        });
+    });
+}
+
+function updateAirports() {
+    $.getJSON('/airports.json', function(data) {
+        $.each(data, function () {
+            var coordinates = ol.proj.transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
+            airport = new ol.Feature({
+                geometry: new ol.geom.Point(coordinates),
+            });
+
+            airport.set('icao', this.icao);
+            airport.set('name', this.name);
+            airport.set('elevation', this.elevation);
+
+            staticLayer.getSource().addFeature(airport);
+            airport.setStyle(getAirportStyle(airport));
         });
     });
 }
